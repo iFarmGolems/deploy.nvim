@@ -1,4 +1,4 @@
 return require("plenary.log").new({
-	plugin = "deploy",
-	level = "info",
+  plugin = "deploy",
+  level = "info",
 })
