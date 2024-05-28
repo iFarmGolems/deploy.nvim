@@ -19,18 +19,9 @@ local function check_sftp()
 	end
 end
 
-local function check_both()
-  if rsync_exists or sftp_exists then
-    vim.health.ok("rsync and/or sftp executables found")
-  else
-    vim.health.error("rsync and/or sftp executables not found")
-  end
-end
-
 M.check = function()
 	check_rsync()
 	check_sftp()
-  check_both()
 end
 
 return M
