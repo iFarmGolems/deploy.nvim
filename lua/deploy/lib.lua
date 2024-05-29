@@ -42,31 +42,26 @@ M.deploy_via_rsync = function(file)
     return
   end
 
+  vim.notify("root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_path, vim.log.levels.INFO)
+
   Job:new({
     command = "rsync",
     args = { "-azhe", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_path },
-    on_exit = function(_, return_val)
+    on_exit = function(j, return_val)
+      vim.notify(j:result())
+
       if return_val == 0 then
         vim.notify("Deployed " .. file, vim.log.levels.INFO)
       else
         vim.notify("Failed to deploy " .. file, vim.log.levels.ERROR)
       end
     end,
-  }).start()
+  }):start()
 end
 
-M.test = function()
-  Job:new({
-    command = "echo",
-    args = { "Hello" },
-    on_exit = function(_, return_val)
-      if return_val == 0 then
-        vim.notify("Deployed", vim.log.levels.INFO)
-      else
-        vim.notify("Failed to deploy", vim.log.levels.ERROR)
-      end
-    end,
-  }):start()
+M.deploy_current_file = function()
+  local file = vim.fn.expand("%:p")
+  M.deploy_via_rsync(file)
 end
 
 return M
