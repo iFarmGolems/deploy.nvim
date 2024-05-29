@@ -1,5 +1,5 @@
 local config = require("deploy.config")
-local Job = require("ple")
+local Job = require("plenary.job")
 
 local M = {}
 
@@ -16,6 +16,7 @@ end
 M.find_server_path = function(file_path)
   local mapping = config.options.mapping
   local server_path = nil
+
   for _, map in ipairs(mapping) do
     local fs = vim.fn.expand(map.fs)
     -- if file_path starts with fs then we can deploy it
@@ -65,7 +66,7 @@ M.test = function()
         vim.notify("Failed to deploy", vim.log.levels.ERROR)
       end
     end,
-  }).start()
+  }):start()
 end
 
 return M
