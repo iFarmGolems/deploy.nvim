@@ -85,7 +85,7 @@ M.deploy_via_rsync = function(file, auto)
 
   Job:new({
     command = "rsync",
-    args = { "-azhe", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_folder },
+    args = { "-aze", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_folder },
     on_exit = function(_, exit_code)
       if exit_code == 0 then
         vim.notify("Deploy successful.", vim.log.levels.INFO)
@@ -120,8 +120,9 @@ M.deploy_via_sftp = function(file)
   }):start()
 end
 
-M.deploy_current_file = function(auto)
-  local file = vim.fn.expand("%:p")
+M.deploy_current_file = function(auto, file_path)
+  -- file from outside or current buffer file
+  local file = file_path or vim.fn.expand("%:p")
   local tool = config.options.tool or "sftp"
 
   local toolMap = {

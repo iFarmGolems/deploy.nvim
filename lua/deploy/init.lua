@@ -4,10 +4,23 @@ local lib = require("deploy.lib")
 local M = {}
 
 M.setup = config.setup
-M.deploy_current_file = lib.deploy_current_file
+
+vim.api.nvim_create_user_command("DeployToggleDeployOnSave", function()
+  lib.toggle_deploy_on_save()
+end, {})
 
 vim.api.nvim_create_user_command("DeployCurrentFile", function()
-  M.deploy_current_file(false)
+  lib.deploy_current_file(false)
 end, {})
+
+vim.api.nvim_create_autocmd("BufWritePost", {
+  callback = function(opts)
+    if not vim.g.DEPLOY_ON_SAVE then
+      return
+    end
+
+    lib.deploy_current_file(true, opts.match)
+  end,
+})
 
 return M
