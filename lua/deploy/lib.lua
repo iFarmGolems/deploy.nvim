@@ -29,7 +29,38 @@ M.find_server_path = function(file_path)
   return server_path
 end
 
-M.deploy_via_rsync = function(file)
+M.open_host_picker = function()
+  local hosts = config.options.hosts
+  local host_list = {}
+
+  for idx, host in ipairs(hosts) do
+    table.insert(host_list, idx .. ".) " .. host.label .. " (" .. host.host .. ")")
+  end
+
+  vim.fn.inputsave()
+  local choice = vim.fn.inputlist(host_list)
+  vim.fn.inputrestore()
+
+  if choice == 0 then
+    return false
+  else
+    vim.g.DEPLOY_LAST_HOST = hosts[choice].host
+
+    return vim.g.DEPLOY_LAST_HOST
+  end
+end
+
+M.toggle_deploy_on_save = function()
+  vim.g.DEPLOY_ON_SAVE = not vim.g.DEPLOY_ON_SAVE
+
+  if vim.g.DEPLOY_ON_SAVE then
+    vim.notify("Deploy on save enabled", vim.log.levels.INFO)
+  else
+    vim.notify("Deploy on save disabled", vim.log.levels.INFO)
+  end
+end
+
+M.prepare_for_deploy = function(file)
   if not M.is_deployable_file(file) then
     vim.notify("Not a deployable file", vim.log.levels.ERROR)
     return
@@ -42,18 +73,56 @@ M.deploy_via_rsync = function(file)
     return
   end
 
-  vim.notify("root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_path, vim.log.levels.INFO)
+  local host_picked = M.open_host_picker()
+
+  if not host_picked then
+    return nil
+  end
+
+  vim.notify("Deploying...", vim.log.levels.INFO)
+
+  return server_path
+end
+
+M.deploy_via_rsync = function(file)
+  local server_path = M.prepare_for_deploy(file)
+
+  if not server_path then
+    return
+  end
 
   Job:new({
     command = "rsync",
     args = { "-azhe", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_path },
-    on_exit = function(j, return_val)
-      vim.notify(j:result())
-
-      if return_val == 0 then
-        vim.notify("Deployed " .. file, vim.log.levels.INFO)
+    on_exit = function(_, exit_code)
+      if exit_code == 0 then
+        vim.notify("Deploy successful.", vim.log.levels.INFO)
       else
-        vim.notify("Failed to deploy " .. file, vim.log.levels.ERROR)
+        vim.notify("Deploy failed.", vim.log.levels.ERROR)
+      end
+    end,
+  }):start()
+end
+
+M.deploy_via_sftp = function(file)
+  local server_path = M.prepare_for_deploy(file)
+
+  if not server_path then
+    return
+  end
+
+  Job:new({
+    command = "sftp",
+    args = { "root@" .. vim.g.DEPLOY_LAST_HOST },
+    writer = function(job)
+      job:send("put " .. file .. " " .. server_path .. "\n")
+      job:send("exit\n")
+    end,
+    on_exit = function(_, exit_code)
+      if exit_code == 0 then
+        vim.notify("Deploy successful.", vim.log.levels.INFO)
+      else
+        vim.notify("Deploy failed.", vim.log.levels.ERROR)
       end
     end,
   }):start()
@@ -61,7 +130,13 @@ end
 
 M.deploy_current_file = function()
   local file = vim.fn.expand("%:p")
-  M.deploy_via_rsync(file)
+  local tool = config.options.tool or "sftp"
+
+  local toolMap = {
+    ["rsync"] = M.deploy_via_rsync,
+  }
+
+  toolMap[tool](file)
 end
 
 return M
