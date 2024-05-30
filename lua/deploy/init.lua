@@ -15,11 +15,9 @@ end, {})
 
 vim.api.nvim_create_autocmd("BufWritePost", {
   callback = function(opts)
-    if not vim.g.DEPLOY_ON_SAVE then
-      return
+    if vim.g.DEPLOY_ON_SAVE then
+      lib.deploy_current_file(true, opts.match)
     end
-
-    lib.deploy_current_file(true, opts.match)
   end,
 })
 
