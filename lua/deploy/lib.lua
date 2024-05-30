@@ -3,17 +3,11 @@ local Job = require("plenary.job")
 
 local M = {}
 
-M.is_deployable_file = function(file_path)
-  if vim.fn.filereadable(file_path) == 0 then
-    return false
+M.get_server_folder = function(file_path)
+  if vim.fn.filereadable(file_path) == 0 or vim.fn.isdirectory(file_path) == 1 then
+    return nil
   end
-  if vim.fn.isdirectory(file_path) == 1 then
-    return false
-  end
-  return true
-end
 
-M.find_server_path = function(file_path)
   local mapping = config.options.mapping
   local server_path = nil
 
