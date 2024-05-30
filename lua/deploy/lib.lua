@@ -102,25 +102,21 @@ M.deploy_via_rsync = function(file, auto)
   }):start()
 end
 
-M.deploy_via_sftp = function(file)
-  local server_path = M.prepare_for_deploy(file)
+M.compare_via_rsync = function(file)
+  local server_folder = M.prepare_for_deploy(file)
 
-  if not server_path then
+  if not server_folder then
     return
   end
 
   Job:new({
-    command = "sftp",
-    args = { "root@" .. vim.g.DEPLOY_LAST_HOST },
-    writer = function(job)
-      job:send("put " .. file .. " " .. server_path .. "\n")
-      job:send("exit\n")
-    end,
-    on_exit = function(_, exit_code)
+    command = "rsync",
+    args = { "-naze", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_folder },
+    on_exit = function(j, exit_code)
       if exit_code == 0 then
-        vim.notify("Deploy successful.", vim.log.levels.INFO)
+        vim.notify("Files are in sync.", vim.log.levels.INFO)
       else
-        vim.notify("Deploy failed.", vim.log.levels.ERROR)
+        vim.notify("Files are not in sync.", vim.log.levels.ERROR)
       end
     end,
   }):start()
