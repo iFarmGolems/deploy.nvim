@@ -89,6 +89,10 @@ M.deploy_via_rsync = function(file, auto)
     return
   end
 
+  --local file_name = vim.fn.fnamemodify(file, ":t")
+
+  vim.notify("Deploying to: " .. vim.g.DEPLOY_LAST_HOST)
+
   Job:new({
     command = "rsync",
     args = { "-aze", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_folder },
