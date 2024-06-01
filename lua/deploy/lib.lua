@@ -1,5 +1,4 @@
 local config = require("deploy.config")
-local Job = require("plenary.job")
 
 local M = {}
 
@@ -89,41 +88,17 @@ M.deploy_via_rsync = function(file, auto)
     return
   end
 
-  --local file_name = vim.fn.fnamemodify(file, ":t")
-
   vim.notify("Deploying to: " .. vim.g.DEPLOY_LAST_HOST)
 
-  Job:new({
-    command = "rsync",
-    args = { "-aze", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_folder },
-    on_exit = function(_, exit_code)
-      if exit_code == 0 then
-        vim.notify("Deploy successful.", vim.log.levels.INFO)
-      else
-        vim.notify("Deploy failed.", vim.log.levels.ERROR)
-      end
-    end,
-  }):start()
-end
+  local command = { "rsync", "-aze", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_folder }
 
-M.compare_via_rsync = function(file)
-  local server_folder = M.prepare_for_deploy(file)
-
-  if not server_folder then
-    return
-  end
-
-  Job:new({
-    command = "rsync",
-    args = { "-naze", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_folder },
-    on_exit = function(j, exit_code)
-      if exit_code == 0 then
-        vim.notify("Files are in sync.", vim.log.levels.INFO)
-      else
-        vim.notify("Files are not in sync.", vim.log.levels.ERROR)
-      end
-    end,
-  }):start()
+  vim.system(command, { text = true }, function(handle)
+    if handle.code == 0 then
+      vim.notify("Deploy successful.")
+    else
+      vim.notify("Deploy failed: " .. handle.stdout, vim.log.levels.ERROR)
+    end
+  end)
 end
 
 M.deploy_current_file = function(auto, file_path)
