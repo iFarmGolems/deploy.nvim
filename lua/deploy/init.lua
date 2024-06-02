@@ -10,7 +10,7 @@ vim.api.nvim_create_user_command("DeployToggleDeployOnSave", function()
 end, {})
 
 vim.api.nvim_create_user_command("DeployCurrentFile", function()
-  lib.deploy_current_file(false)
+  lib.deploy_file(vim.fn.expand("%:p"), false)
 end, {})
 
 vim.api.nvim_create_user_command("DeployCompareCurrentFile", function()
@@ -20,7 +20,7 @@ end, {})
 vim.api.nvim_create_autocmd("BufWritePost", {
   callback = function(opts)
     if vim.g.DEPLOY_ON_SAVE then
-      lib.deploy_current_file(true, opts.match)
+      lib.deploy_file(opts.match, true)
     end
   end,
 })

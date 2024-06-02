@@ -1,4 +1,5 @@
 local config = require("deploy.config")
+local async = require("plenary.async")
 
 local M = {}
 
@@ -119,9 +120,7 @@ M.deploy_via_rsync = function(file, auto)
   end)
 end
 
-M.deploy_current_file = function(auto, file_path)
-  -- file from outside or current buffer file
-  local file = file_path or vim.fn.expand("%:p")
+M.deploy_file = function(file, auto)
   local tool = config.options.tool or "sftp"
 
   local toolMap = {
