@@ -28,6 +28,24 @@ M.get_server_folder = function(file_path)
   return server_path
 end
 
+M.pick_host = function(callback)
+  local hosts = config.options.hosts
+
+  vim.ui.select(hosts, {
+    prompt = "Select host:",
+    format_item = function(item)
+      return item.label .. " (" .. item.host .. ")"
+    end,
+  }, function(choice)
+    if choice then
+      vim.g.DEPLOY_LAST_HOST = choice.host
+      callback(choice.host)
+    else
+      callback(nil)
+    end
+  end)
+end
+
 M.open_host_picker = function()
   local hosts = config.options.hosts
   local host_list = {}
