@@ -125,7 +125,7 @@ M.deploy_via_rsync = function(file, auto)
 end
 
 M.deploy_file = function(file, auto)
-  local tool = config.options.tool or "sftp"
+  local tool = config.options.tool or "rsync"
 
   local toolMap = {
     ["rsync"] = M.deploy_via_rsync,
