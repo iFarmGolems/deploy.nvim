@@ -13,8 +13,8 @@ M.get_server_folder = function(file_path)
 
   -- Sort the mapping by fs length in descending order
   -- so that we can match the most specific path first
-  table.sort(mapping, function(a, b)
-    return #a.fs > #b.fs
+  table.sort(mapping, function(x, y)
+    return #x.fs > #y.fs
   end)
 
   for _, map in ipairs(mapping) do
