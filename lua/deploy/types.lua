@@ -18,3 +18,7 @@
 ---@field honor_gitignore boolean Whether to respect .gitignore files when deploying. Default is true.
 ---@field hosts DeployHost[] A table of hosts to which we can deploy.
 ---@field mapping DeployMapping[] A table of mappings from local filesystem paths to remote paths.
+
+---@class Subcommand
+---@field impl fun(args:string[], opts: table) The command implementation
+---@field complete? fun(subcmd_arg_lead: string): string[] (optional) Command completions callback, taking the lead of the subcommand's arguments
