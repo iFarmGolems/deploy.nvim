@@ -3,12 +3,12 @@ local a = require("plenary.async")
 
 local M = {}
 
-M.is_deployable_file = function(file_path)
+M.is_deployable = function(file_path)
   return vim.fn.filereadable(file_path) and not vim.fn.isdirectory(file_path)
 end
 
-M.get_server_folder = function(file_path)
-  if not M.is_deployable_file(file_path) then
+M.get_server_dir = function(file_path)
+  if not M.is_deployable(file_path) then
     return nil
   end
 
@@ -83,7 +83,7 @@ M.toggle_deploy_on_save = function()
 end
 
 M.prepare_for_deploy = function(file, auto)
-  local server_folder = M.get_server_folder(file)
+  local server_folder = M.get_server_dir(file)
 
   if auto then
     return server_folder
