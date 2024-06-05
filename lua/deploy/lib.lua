@@ -1,10 +1,14 @@
 local config = require("deploy.config")
-local async = require("plenary.async")
+local a = require("plenary.async")
 
 local M = {}
 
+M.is_deployable_file = function(file_path)
+  return vim.fn.filereadable(file_path) and not vim.fn.isdirectory(file_path)
+end
+
 M.get_server_folder = function(file_path)
-  if vim.fn.filereadable(file_path) == 0 or vim.fn.isdirectory(file_path) == 1 then
+  if not M.is_deployable_file(file_path) then
     return nil
   end
 
