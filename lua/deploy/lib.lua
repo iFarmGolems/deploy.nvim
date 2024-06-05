@@ -4,10 +4,10 @@ local a = require("plenary.async")
 local M = {}
 
 M.is_deployable = function(file_path)
-  return vim.fn.filereadable(file_path) and not vim.fn.isdirectory(file_path)
+  return vim.fn.filereadable(file_path) == 1 and vim.fn.isdirectory(file_path) == 0
 end
 
-M.get_server_dir = function(file_path)
+M.get_server_path = function(file_path)
   if not M.is_deployable(file_path) then
     return nil
   end
@@ -51,27 +51,6 @@ M.pick_host = a.wrap(function(callback)
   end)
 end, 1)
 
-M.open_host_picker = function()
-  local hosts = config.options.hosts
-  local host_list = {}
-
-  for idx, host in ipairs(hosts) do
-    table.insert(host_list, idx .. ".) " .. host.label .. " (" .. host.host .. ")")
-  end
-
-  vim.fn.inputsave()
-  local choice = vim.fn.inputlist(host_list)
-  vim.fn.inputrestore()
-
-  if choice == 0 then
-    return false
-  else
-    vim.g.DEPLOY_LAST_HOST = hosts[choice].host
-
-    return vim.g.DEPLOY_LAST_HOST
-  end
-end
-
 M.toggle_deploy_on_save = function()
   vim.g.DEPLOY_ON_SAVE = not vim.g.DEPLOY_ON_SAVE
 
@@ -82,38 +61,10 @@ M.toggle_deploy_on_save = function()
   end
 end
 
-M.prepare_for_deploy = function(file, auto)
-  local server_folder = M.get_server_dir(file)
+M.transfer = function(opts)
+  local file, server_path, host = unpack(opts)
 
-  if auto then
-    return server_folder
-  end
-
-  if not server_folder then
-    vim.notify("No mapping found for " .. file, vim.log.levels.ERROR)
-    return nil
-  end
-
-  local host_picked = M.open_host_picker()
-
-  if not host_picked then
-    vim.notify("Abort: No host selected", vim.log.levels.WARN)
-    return nil
-  end
-
-  return server_folder
-end
-
-M.deploy_via_rsync = function(file, auto)
-  local server_folder = M.prepare_for_deploy(file, auto)
-
-  if not server_folder then
-    return
-  end
-
-  vim.notify("Deploying to: " .. vim.g.DEPLOY_LAST_HOST)
-
-  local command = { "rsync", "-aze", "ssh", file, "root@" .. vim.g.DEPLOY_LAST_HOST .. ":" .. server_folder }
+  local command = { "rsync", "-aze", "ssh", file, "root@" .. host .. ":" .. server_path }
 
   vim.system(command, { text = true }, function(handle)
     if handle.code == 0 then
@@ -124,14 +75,32 @@ M.deploy_via_rsync = function(file, auto)
   end)
 end
 
-M.deploy_file = function(file, auto)
-  local tool = config.options.tool or "rsync"
+M.deploy_file = a.void(function(file)
+  local server_path = M.get_server_path(file)
 
-  local toolMap = {
-    ["rsync"] = M.deploy_via_rsync,
-  }
+  if not server_path then
+    vim.notify("No mapping found for " .. file, vim.log.levels.ERROR)
 
-  toolMap[tool](file, auto)
+    return
+  end
+
+  local host = M.pick_host()
+
+  if not host then
+    vim.notify("Abort: No host selected", vim.log.levels.WARN)
+    return
+  end
+
+  M.transfer({ file, server_path, host })
+end)
+
+M.auto_deploy_file = function(file)
+  local server_path = M.get_server_path(file)
+  local host = vim.g.DEPLOY_LAST_HOST
+
+  if server_path then
+    M.transfer({ file, server_path, host })
+  end
 end
 
 return M
