@@ -64,7 +64,7 @@ end
 M.transfer = function(opts)
   local file, server_path, host = unpack(opts)
 
-  local command = { "rsync", "-aze", "ssh", file, "root@" .. host .. ":" .. server_path }
+  local command = { "rsync", "--timeout=5", "-avze", "ssh", file, "root@" .. host .. ":" .. server_path }
 
   vim.system(command, { text = true }, function(handle)
     if handle.code == 0 then
