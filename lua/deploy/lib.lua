@@ -66,6 +66,8 @@ M.transfer = function(opts)
 
   local command = { "rsync", "--timeout=5", "-avze", "ssh", file, "root@" .. host .. ":" .. server_path }
 
+  vim.notify("Deploying...")
+
   vim.system(command, { text = true }, function(handle)
     if handle.code == 0 then
       vim.notify("Deploy successful.")
