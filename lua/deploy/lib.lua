@@ -64,7 +64,14 @@ end
 M.transfer = function(opts)
   local file, server_path, host = unpack(opts)
 
-  local command = { "rsync", "--timeout=5", "-avze", "ssh", file, "root@" .. host .. ":" .. server_path }
+  local command = {
+    "rsync",
+    "--timeout=" .. config.options.timeout,
+    "-avze",
+    "ssh",
+    file,
+    "root@" .. host .. ":" .. server_path,
+  }
 
   vim.notify("Deploying to " .. host .. "...")
 
@@ -72,7 +79,8 @@ M.transfer = function(opts)
     if handle.code == 0 then
       vim.notify("Deploy successful.")
     else
-      vim.notify("Deploy failed: " .. handle.stdout, vim.log.levels.ERROR)
+      vim.notify("Deploy failed!\nExit code: " .. handle.code .. ".\nSTDERR: " .. handle.stderr, vim.log.levels.ERROR)
+      print("Command used: ", table.concat(command, " "))
     end
   end)
 end
