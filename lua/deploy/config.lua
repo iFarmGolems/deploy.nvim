@@ -2,6 +2,7 @@ local M = {}
 
 ---@type DeployConfig
 M.defaults = {
+  timeout = 3,
   tool = "rsync",
   honor_gitignore = true,
   hosts = {},
@@ -15,7 +16,7 @@ M.setup = function(opts)
   vim.g.DEPLOY_LAST_HOST = vim.g.DEPLOY_LAST_HOST or "0.0.0.0"
   vim.g.DEPLOY_ON_SAVE = vim.g.DEPLOY_ON_SAVE or false
 
-  --@type DeployConfig
+  ---@type DeployConfig
   M.options = vim.tbl_deep_extend("force", M.defaults, opts or {})
 end
 
