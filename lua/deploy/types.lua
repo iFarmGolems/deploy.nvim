@@ -14,6 +14,7 @@
 ---@field remote string Remote folder.
 
 ---@class DeployConfig
+---@field timeout number The timeout for deployment (Seconds). Default is 3.
 ---@field tool Tool The tool to use for deployment. Default is "rsync".
 ---@field honor_gitignore boolean Whether to respect .gitignore files when deploying. Default is true.
 ---@field hosts DeployHost[] A table of hosts to which we can deploy.
