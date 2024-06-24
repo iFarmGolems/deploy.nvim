@@ -34,7 +34,9 @@ M.get_server_path = function(file_path)
 end
 
 M.pick_host = a.wrap(function(callback)
-  local hosts = config.options.hosts
+  ---append host "other" to the list of hosts
+  local hosts = vim.deepcopy(config.options.hosts)
+  table.insert(hosts, 1, { label = "Other", host = "CUSTOM_HOST" })
 
   vim.ui.select(hosts, {
     prompt = "Select host:",
@@ -43,6 +45,21 @@ M.pick_host = a.wrap(function(callback)
     end,
   }, function(choice)
     if choice then
+      if choice.host == "CUSTOM_HOST" then
+        vim.ui.input({
+          prompt = "Enter host:",
+          default = "",
+        }, function(host)
+          if host then
+            vim.g.DEPLOY_LAST_HOST = host
+            callback(host)
+          else
+            callback(nil)
+          end
+        end)
+        return
+      end
+
       vim.g.DEPLOY_LAST_HOST = choice.host
       callback(choice.host)
     else
