@@ -78,9 +78,29 @@ M.transfer = function(opts)
   vim.system(command, { text = true }, function(handle)
     if handle.code == 0 then
       vim.notify("Deploy successful.")
+    elseif handle.code == 3 then
+      M.create_server_dir(server_path, host, function(success)
+        if success then
+          M.transfer(opts)
+        else
+          vim.notify("Failed to create server directory", vim.log.levels.ERROR)
+        end
+      end)
     else
       vim.notify("Deploy failed!\nExit code: " .. handle.code .. ".\nSTDERR: " .. handle.stderr, vim.log.levels.ERROR)
       print("Command used: ", table.concat(command, " "))
+    end
+  end)
+end
+
+M.create_server_dir = function(server_path, host, callback)
+  local server_dir = server_path:match("(.*/)")
+
+  vim.system({ "ssh", "root@" .. host, "mkdir -p " .. server_dir }, { text = true }, function(handle)
+    if handle.code == 0 then
+      callback(true)
+    else
+      callback(false)
     end
   end)
 end
