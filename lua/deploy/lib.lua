@@ -99,8 +99,6 @@ M.transfer = function(opts)
       M.create_server_dir(server_path, host, function(success)
         if success then
           M.transfer(opts)
-        else
-          vim.notify("Failed to create server directory", vim.log.levels.ERROR)
         end
       end)
     else
@@ -113,10 +111,13 @@ end
 M.create_server_dir = function(server_path, host, callback)
   local server_dir = server_path:match("(.*/)")
 
+  vim.notify("Creating directory " .. server_dir .. " on " .. host .. "...")
+
   vim.system({ "ssh", "root@" .. host, "mkdir -p " .. server_dir }, { text = true }, function(handle)
     if handle.code == 0 then
       callback(true)
     else
+      vim.notify("Failed to create directory " .. server_dir .. " on " .. host, vim.log.levels.ERROR)
       callback(false)
     end
   end)
