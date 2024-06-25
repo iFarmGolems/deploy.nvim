@@ -4,7 +4,7 @@ local lib = require("deploy.lib")
 local subcommand_tbl = {
   file = {
     impl = function(args, opts)
-      lib.deploy_file(args[1] or vim.fn.expand("%:p"))
+      lib.deploy_file(vim.fn.expand("%:p"))
       -- Implementation (args is a list of strings)
     end,
     -- This subcommand has no completions
