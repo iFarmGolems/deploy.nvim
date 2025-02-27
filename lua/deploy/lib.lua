@@ -152,31 +152,33 @@ M.auto_deploy_file = function(file)
 end
 
 M.diff_with = function(str)
-  -- Save the current buffer content to a temporary file
-  local temp_file = vim.fn.tempname()
-  vim.api.nvim_command("silent write! " .. vim.fn.fnameescape(temp_file))
+  -- Get the current buffer's content
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
-  -- Create a buffer containing the string and write it to another temporary file.
-  local string_temp_file = vim.fn.tempname()
-  local f = io.open(string_temp_file, "w")
-  if f then
-    f:write(str)
-    f:close()
-  else
-    vim.api.nvim_err_writeln("Error creating string temporary file.")
-    vim.fn.delete(temp_file) -- Clean up the other temp file.
-    return
-  end
+  -- Create a new buffer for the string
+  local diff_buf = vim.api.nvim_create_buf(true, false)
+  vim.api.nvim_buf_set_lines(diff_buf, 0, -1, false, vim.split(str, "\n"))
 
-  -- Execute the diff command
-  vim.api.nvim_command("silent diffsplit " .. vim.fn.fnameescape(string_temp_file))
+  -- Open a vertical split with the new buffer
+  vim.cmd("vsplit")
+  vim.api.nvim_win_set_buf(0, diff_buf)
 
-  -- Restore the focus to the original buffer
-  vim.api.nvim_command("silent wincmd p")
+  -- Enable diff mode for both buffers
+  vim.cmd("diffthis")
+  vim.cmd("wincmd p") -- Switch back to the original buffer
+  vim.cmd("diffthis")
 
-  -- Clean up the temporary files
-  vim.fn.delete(temp_file)
-  vim.fn.delete(string_temp_file)
+  -- Set up an autocommand to clean up the temporary buffer when the diffview is closed
+  vim.api.nvim_create_autocmd("WinClosed", {
+    pattern = tostring(vim.api.nvim_get_current_win()),
+    callback = function()
+      -- Check if the temporary buffer still exists
+      if vim.api.nvim_buf_is_valid(diff_buf) then
+        vim.api.nvim_buf_delete(diff_buf, { force = true }) -- Forcefully delete the buffer
+      end
+    end,
+    once = true, -- Ensure the autocommand runs only once
+  })
 end
 
 M.compare = a.void(function()
