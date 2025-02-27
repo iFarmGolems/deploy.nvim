@@ -152,9 +152,6 @@ M.auto_deploy_file = function(file)
 end
 
 M.diff_with = function(str)
-  -- Get the current buffer's content
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-
   -- Create a new buffer for the string
   local diff_buf = vim.api.nvim_create_buf(true, false)
   vim.api.nvim_buf_set_lines(diff_buf, 0, -1, false, vim.split(str, "\n"))
