@@ -151,7 +151,7 @@ M.auto_deploy_file = function(file)
   end
 end
 
-M.diff_with = function(str)
+M.diff_buffer_with_string = function(str)
   -- Create a new buffer for the string
   local diff_buf = vim.api.nvim_create_buf(true, true)
   vim.api.nvim_buf_set_lines(diff_buf, 0, -1, false, vim.split(str, "\n"))
@@ -209,7 +209,7 @@ M.compare = a.void(function()
           vim.notify("No differences found.")
           return
         else
-          M.diff_with(remote_text)
+          M.diff_buffer_with_string(remote_text)
         end
       end)
     else
