@@ -151,4 +151,84 @@ M.auto_deploy_file = function(file)
   end
 end
 
+M.diff_with = function(string_to_diff)
+  local vim = vim
+  if not string_to_diff then
+    vim.notify("Error: No string provided for diffing.", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Create a new buffer with the string
+  vim.cmd("vert new")
+  vim.cmd("setlocal buftype=nofile")
+  vim.cmd("setlocal bufhidden=hide") -- Important to allow closing the buffer
+  vim.cmd("setlocal noswapfile")
+  vim.cmd("setlocal filetype=text") -- Or any appropriate filetype
+
+  -- Escape special characters for 'execute'
+  local escaped_string = vim.fn.escape(string_to_diff, "'\"")
+
+  -- Append the string to the buffer
+  vim.cmd("execute 'normal! i" .. escaped_string .. "<Esc>'")
+
+  -- Diff this buffer with the original buffer
+  vim.cmd("diffthis")
+  vim.cmd("wincmd p") -- Go back to the original buffer
+  vim.cmd("diffthis")
+
+  vim.notify("Diff with string complete.", vim.log.levels.INFO)
+end
+
+M.compare = a.void(function()
+  local current_file = vim.fn.expand("%:p")
+  local server_path = M.get_server_path(current_file)
+  local host = M.pick_host()
+
+  if not server_path then
+    vim.notify("No mapping found for " .. current_file, vim.log.levels.ERROR)
+    return
+  end
+
+  if not host then
+    vim.notify("Abort: No host selected", vim.log.levels.WARN)
+    return
+  end
+
+  vim.notify("Comparing with " .. host .. "...")
+
+  local fetch_command = {
+    "ssh",
+    "root@" .. host,
+    "cat " .. server_path .. " > /tmp/nvim-deploy-compare-content",
+  }
+
+  vim.system(fetch_command, { text = true }, function(fetch_handle)
+    if fetch_handle.code == 0 then
+      -- get current file text
+      local current_file_text = vim.fn.join(vim.fn.readfile(current_file), "\n")
+      local remote_text = vim.fn.join(vim.fn.readfile("/tmp/nvim-deploy-compare-content"), "\n")
+
+      if current_file_text == remote_text then
+        vim.notify("No differences found.")
+        return
+      else
+        M.diff_with(remote_text)
+      end
+
+      vim.system(diff_command, { text = true }, function(diff_handle)
+        if diff_handle.code == 0 then
+          vim.notify("No differences found.")
+        else
+          vim.notify("Differences:\n" .. diff_handle.stdout)
+        end
+      end)
+    else
+      vim.notify(
+        "Failed to fetch remote file!\nExit code: " .. fetch_handle.code .. ".\nSTDERR: " .. fetch_handle.stderr,
+        vim.log.levels.ERROR
+      )
+    end
+  end)
+end)
+
 return M

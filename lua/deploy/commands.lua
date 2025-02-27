@@ -14,6 +14,11 @@ local subcommand_tbl = {
       lib.toggle_deploy_on_save()
     end,
   },
+  compare = {
+    impl = function()
+      lib.compare()
+    end,
+  },
   -- install = {
   --   impl = function(args, opts)
   --     -- Implementation
