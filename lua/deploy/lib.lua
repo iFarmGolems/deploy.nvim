@@ -199,8 +199,6 @@ M.compare = a.void(function()
     "cat " .. server_path .. " > /tmp/nvim-deploy-compare-content",
   }
 
-  print("command used: ", table.concat(fetch_command, " "))
-
   vim.system(fetch_command, { text = true }, function(fetch_handle)
     if fetch_handle.code == 0 then
       vim.schedule(function()
