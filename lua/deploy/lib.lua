@@ -153,6 +153,7 @@ end
 
 M.diff_with = function(string_to_diff)
   local vim = vim
+
   if not string_to_diff then
     vim.notify("Error: No string provided for diffing.", vim.log.levels.ERROR)
     return
@@ -165,11 +166,11 @@ M.diff_with = function(string_to_diff)
   vim.cmd("setlocal noswapfile")
   vim.cmd("setlocal filetype=text") -- Or any appropriate filetype
 
-  -- Escape special characters for 'execute'
-  local escaped_string = vim.fn.escape(string_to_diff, "'\"")
+  -- Get the current buffer number
+  local buf = vim.api.nvim_get_current_buf()
 
-  -- Append the string to the buffer
-  vim.cmd("execute 'normal! i" .. escaped_string .. "<Esc>'")
+  -- Set the lines of the buffer
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(string_to_diff, "\n"))
 
   -- Diff this buffer with the original buffer
   vim.cmd("diffthis")
@@ -194,32 +195,25 @@ M.compare = a.void(function()
     return
   end
 
-  vim.notify("Comparing with " .. host .. "...")
-
   local fetch_command = {
     "ssh",
     "root@" .. host,
     "cat " .. server_path .. " > /tmp/nvim-deploy-compare-content",
   }
 
+  print("command used: ", table.concat(fetch_command, " "))
+
   vim.system(fetch_command, { text = true }, function(fetch_handle)
     if fetch_handle.code == 0 then
-      -- get current file text
-      local current_file_text = vim.fn.join(vim.fn.readfile(current_file), "\n")
-      local remote_text = vim.fn.join(vim.fn.readfile("/tmp/nvim-deploy-compare-content"), "\n")
+      vim.schedule(function()
+        local current_file_text = vim.fn.join(vim.fn.readfile(current_file), "\n")
+        local remote_text = vim.fn.join(vim.fn.readfile("/tmp/nvim-deploy-compare-content"), "\n")
 
-      if current_file_text == remote_text then
-        vim.notify("No differences found.")
-        return
-      else
-        M.diff_with(remote_text)
-      end
-
-      vim.system(diff_command, { text = true }, function(diff_handle)
-        if diff_handle.code == 0 then
+        if current_file_text == remote_text then
           vim.notify("No differences found.")
+          return
         else
-          vim.notify("Differences:\n" .. diff_handle.stdout)
+          M.diff_with(remote_text)
         end
       end)
     else
