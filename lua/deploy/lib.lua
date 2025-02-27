@@ -178,7 +178,7 @@ M.diff_buffer_with_string = function(str)
   })
 end
 
-M.compare = a.void(function()
+M.compare_with_remote_file = a.void(function()
   local current_file = vim.fn.expand("%:p")
   local server_path = M.get_server_path(current_file)
   local host = M.pick_host()

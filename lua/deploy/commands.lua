@@ -16,7 +16,7 @@ local subcommand_tbl = {
   },
   compare = {
     impl = function()
-      lib.compare()
+      lib.compare_with_remote_file()
     end,
   },
   -- install = {
