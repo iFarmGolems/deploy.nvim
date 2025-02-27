@@ -151,33 +151,32 @@ M.auto_deploy_file = function(file)
   end
 end
 
-M.diff_with = function(string_to_diff)
-  local vim = vim
+M.diff_with = function(str)
+  -- Save the current buffer content to a temporary file
+  local temp_file = vim.fn.tempname()
+  vim.api.nvim_command("silent write! " .. vim.fn.fnameescape(temp_file))
 
-  if not string_to_diff then
-    vim.notify("Error: No string provided for diffing.", vim.log.levels.ERROR)
+  -- Create a buffer containing the string and write it to another temporary file.
+  local string_temp_file = vim.fn.tempname()
+  local f = io.open(string_temp_file, "w")
+  if f then
+    f:write(str)
+    f:close()
+  else
+    vim.api.nvim_err_writeln("Error creating string temporary file.")
+    vim.fn.delete(temp_file) -- Clean up the other temp file.
     return
   end
 
-  -- Create a new buffer with the string
-  vim.cmd("vert new")
-  vim.cmd("setlocal buftype=nofile")
-  vim.cmd("setlocal bufhidden=hide") -- Important to allow closing the buffer
-  vim.cmd("setlocal noswapfile")
-  vim.cmd("setlocal filetype=text") -- Or any appropriate filetype
+  -- Execute the diff command
+  vim.api.nvim_command("silent diffsplit " .. vim.fn.fnameescape(string_temp_file))
 
-  -- Get the current buffer number
-  local buf = vim.api.nvim_get_current_buf()
+  -- Restore the focus to the original buffer
+  vim.api.nvim_command("silent wincmd p")
 
-  -- Set the lines of the buffer
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, vim.split(string_to_diff, "\n"))
-
-  -- Diff this buffer with the original buffer
-  vim.cmd("diffthis")
-  vim.cmd("wincmd p") -- Go back to the original buffer
-  vim.cmd("diffthis")
-
-  vim.notify("Diff with string complete.", vim.log.levels.INFO)
+  -- Clean up the temporary files
+  vim.fn.delete(temp_file)
+  vim.fn.delete(string_temp_file)
 end
 
 M.compare = a.void(function()
