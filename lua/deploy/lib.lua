@@ -153,7 +153,7 @@ end
 
 M.diff_with = function(str)
   -- Create a new buffer for the string
-  local diff_buf = vim.api.nvim_create_buf(true, false)
+  local diff_buf = vim.api.nvim_create_buf(true, true)
   vim.api.nvim_buf_set_lines(diff_buf, 0, -1, false, vim.split(str, "\n"))
 
   -- Open a vertical split with the new buffer
@@ -165,14 +165,14 @@ M.diff_with = function(str)
   vim.cmd("wincmd p") -- Switch back to the original buffer
   vim.cmd("diffthis")
 
-  -- Set up an autocommand to clean up the temporary buffer when the diffview is closed
   vim.api.nvim_create_autocmd("WinClosed", {
     pattern = tostring(vim.api.nvim_get_current_win()),
     callback = function()
-      -- Check if the temporary buffer still exists
-      if vim.api.nvim_buf_is_valid(diff_buf) then
-        vim.api.nvim_buf_delete(diff_buf, { force = true }) -- Forcefully delete the buffer
-      end
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(diff_buf) then
+          vim.api.nvim_buf_delete(diff_buf, { force = true }) -- Forcefully delete the buffer
+        end
+      end)
     end,
     once = true, -- Ensure the autocommand runs only once
   })
