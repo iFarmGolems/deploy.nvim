@@ -110,7 +110,7 @@ M.transfer = function(opts)
           .. "\nSTDERR: "
           .. handle.stderr
           .. "\nCommand used: "
-          .. table.concat(command, ""),
+          .. table.concat(command, " "),
         vim.log.levels.ERROR
       )
     end
