@@ -34,10 +34,8 @@ M.get_server_path = function(file_path)
 end
 
 M.pick_host = a.wrap(function(callback)
-  ---append host "other" to the list of hosts
   local hosts = vim.deepcopy(config.options.hosts)
 
-  -- insert the last used host at the beginning of the list
   if vim.g.DEPLOY_LAST_HOST then
     table.insert(hosts, 1, { label = "Last used (" .. vim.g.DEPLOY_LAST_HOST .. ")", host = vim.g.DEPLOY_LAST_HOST })
     table.insert(hosts, 2, { label = "Other", host = "CUSTOM_HOST" })
