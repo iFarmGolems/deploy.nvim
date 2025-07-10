@@ -36,12 +36,7 @@ end
 M.pick_host = a.wrap(function(callback)
   local hosts = vim.deepcopy(config.options.hosts)
 
-  if vim.g.DEPLOY_LAST_HOST then
-    table.insert(hosts, 1, { label = "Last used (" .. vim.g.DEPLOY_LAST_HOST .. ")", host = vim.g.DEPLOY_LAST_HOST })
-    table.insert(hosts, 2, { label = "Other", host = "CUSTOM_HOST" })
-  else
-    table.insert(hosts, 1, { label = "Other", host = "CUSTOM_HOST" })
-  end
+  table.insert(hosts, 1, { label = "Other", host = vim.g.DEPLOY_LAST_HOST or "CUSTOM_HOST" })
 
   vim.ui.select(hosts, {
     prompt = "Select host:",
