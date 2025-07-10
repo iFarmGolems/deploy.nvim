@@ -36,7 +36,7 @@ end
 M.pick_host = a.wrap(function(callback)
   local hosts = vim.deepcopy(config.options.hosts)
 
-  table.insert(hosts, 1, { label = "Other", host = vim.g.DEPLOY_LAST_HOST or "CUSTOM_HOST" })
+  table.insert(hosts, 1, { label = "Other", host = "CUSTOM_HOST" })
 
   vim.ui.select(hosts, {
     prompt = "Select host:",
@@ -48,7 +48,7 @@ M.pick_host = a.wrap(function(callback)
       if choice.host == "CUSTOM_HOST" then
         vim.ui.input({
           prompt = "Enter host:",
-          default = "",
+          default = vim.g.DEPLOY_LAST_HOST or "",
         }, function(host)
           if host then
             vim.g.DEPLOY_LAST_HOST = host
