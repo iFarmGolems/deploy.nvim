@@ -99,6 +99,8 @@ M.transfer = function(opts)
       M.create_server_dir(server_path, host, function(success)
         if success then
           M.transfer(opts)
+        else
+          vim.notify("Failed to create directory: " .. server_path .. " on remote host.", vim.log.levels.ERROR)
         end
       end)
     else
