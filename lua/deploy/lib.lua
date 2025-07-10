@@ -104,8 +104,15 @@ M.transfer = function(opts)
         end
       end)
     else
-      vim.notify("Deploy failed!\nExit code: " .. handle.code .. ".\nSTDERR: " .. handle.stderr, vim.log.levels.ERROR)
-      print("Command used: ", table.concat(command, " "))
+      vim.notify(
+        "Deploy failed!\nExit code: "
+          .. handle.code
+          .. "\nSTDERR: "
+          .. handle.stderr
+          .. "\nCommand used: "
+          .. table.concat(command, ""),
+        vim.log.levels.ERROR
+      )
     end
   end)
 end
