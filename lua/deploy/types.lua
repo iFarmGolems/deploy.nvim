@@ -4,7 +4,7 @@
 ---@class RewriteFunctionContext
 ---@field fs string Local filesystem path.
 ---@field remote string Remote path.
----@field file_extension string The file extension, if applicable. If no file extension is present, this will be an empty string.
+---@field extension string The file extension - if applicable. If no file extension is present, this will be an empty string.
 
 ---@alias RewriteFunction fun(context: RewriteFunctionContext): string | false | nil
 
