@@ -6,7 +6,7 @@
 ---@field remote string Remote path.
 ---@field file_extension string The file extension, if applicable. If no file extension is present, this will be an empty string.
 
----@alias RewriteFunction fun(context: RewriteFunctionContext): string | false
+---@alias RewriteFunction fun(context: RewriteFunctionContext): string | false | nil
 
 ---@class DeployHost
 ---@field host string The host to which we can deploy.
