@@ -1,4 +1,5 @@
 local lib = require("deploy.lib")
+local lib2 = require("deploy.lib2")
 
 ---@type table<string, Subcommand>
 local subcommand_tbl = {
@@ -12,6 +13,11 @@ local subcommand_tbl = {
   toggle = {
     impl = function()
       lib.toggle_deploy_on_save()
+    end,
+  },
+  test = {
+    impl = function()
+      lib2.test()
     end,
   },
   compare = {
