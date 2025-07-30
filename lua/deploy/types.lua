@@ -20,8 +20,8 @@
 
 ---@class DeployConfig
 ---@field timeout? number The timeout for deployment (Seconds). Default is 3.
----@field hosts? DeployHost[] A table of hosts to which we can deploy.
----@field mapping? DeployMapping[] A table of mappings from local filesystem paths to remote paths.
+---@field hosts DeployHost[] A table of hosts to which we can deploy.
+---@field mapping DeployMapping[] A table of mappings from local filesystem paths to remote paths.
 
 ---@class Subcommand
 ---@field impl fun(args:string[], opts: table) The command implementation
