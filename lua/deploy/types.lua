@@ -1,22 +1,25 @@
 
 ---@meta DeployTypes
 
----@alias Tool 'rsync' | 'sftp'
----@alias RewriteFunction fun(server_path: string, fs_path: string): string
+---@class RewriteFunctionContext
+---@field fs string Local filesystem path.
+---@field remote string Remote path.
+---@field file_extension string The file extension, if applicable. If no file extension is present, this will be an empty string.
+
+---@alias RewriteFunction fun(context: RewriteFunctionContext): string | false
 
 ---@class DeployHost
 ---@field host string The host to which we can deploy.
 ---@field label string A label for the host.
----@field rewrite? RewriteFunction An optional function to rewrite the server path before deployment.
+---@field rewrite? RewriteFunction An optional function to rewrite the remote path before deployment.
 
 ---@class DeployMapping
----@field fs string Local filesystem folder.
----@field remote string Remote folder.
+---@field fs string Local filesystem path.
+---@field remote string Remote path.
+---@field rewrite? RewriteFunction An optional function to rewrite the remote path before deployment.
 
 ---@class DeployConfig
----@field timeout number The timeout for deployment (Seconds). Default is 3.
----@field tool Tool The tool to use for deployment. Default is "rsync".
----@field honor_gitignore boolean Whether to respect .gitignore files when deploying. Default is true.
+---@field timeout? number The timeout for deployment (Seconds). Default is 3.
 ---@field hosts DeployHost[] A table of hosts to which we can deploy.
 ---@field mapping DeployMapping[] A table of mappings from local filesystem paths to remote paths.
 
