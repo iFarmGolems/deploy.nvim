@@ -3,8 +3,6 @@ local M = {}
 ---@type DeployConfig
 M.defaults = {
   timeout = 3,
-  tool = "rsync",
-  honor_gitignore = true,
   hosts = {},
   mapping = {},
 }
