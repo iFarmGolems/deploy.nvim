@@ -3,6 +3,23 @@ local config = require("deploy.config")
 
 local M = {}
 
+local is_deployable_cache = {}
+
+M.is_deployable = function(local_file_path)
+  if is_deployable_cache[local_file_path] ~= nil then
+    return is_deployable_cache[local_file_path]
+  end
+
+  local is_file = vim.fn.filereadable(local_file_path) == 1
+  local is_not_dir = vim.fn.isdirectory(local_file_path) == 0
+
+  local result = is_file and is_not_dir
+
+  is_deployable_cache[local_file_path] = result
+
+  return result
+end
+
 -- Returns the remote path for the given local file path.
 -- If the file is not deployable, returns nil.
 M.get_server_path = function(local_file_path)
