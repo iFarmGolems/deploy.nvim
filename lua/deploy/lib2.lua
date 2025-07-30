@@ -41,16 +41,14 @@ M.pick_host = nio.wrap(function(cb)
   end)
 end, 1)
 
-M.test = function()
-  nio.run(function()
-    vim.notify("Hello from lib2.lua", vim.log.levels.INFO, {
-      title = "Deploy Test",
-    })
+M.test = nio.create(function()
+  vim.notify("Hello from lib2.lua", vim.log.levels.INFO, {
+    title = "Deploy Test",
+  })
 
-    local host = M.pick_host()
+  local host = M.pick_host()
 
-    print(vim.inspect(host))
-  end)
-end
+  print(vim.inspect(host))
+end)
 
 return M
