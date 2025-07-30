@@ -3,6 +3,51 @@ local config = require("deploy.config")
 
 local M = {}
 
+-- Returns the remote path for the given local file path.
+-- If the file is not deployable, returns nil.
+M.get_server_path = function(local_file_path)
+  if not M.is_deployable(local_file_path) then
+    return nil
+  end
+
+  local mappings = config.options.mapping
+
+  -- Sort the mapping by fs length in descending order
+  -- so that we can match the most specific path first
+  table.sort(mappings, function(x, y)
+    return #x.fs > #y.fs
+  end)
+
+  local server_path = nil
+
+  for _, mapping in ipairs(mappings) do
+    local fs = vim.fn.expand(mapping.fs)
+
+    -- if file_path matches any declared "fs" then we can deploy it
+    if local_file_path:find(fs, 1, true) == 1 then
+      server_path = local_file_path:gsub(fs, mapping.remote)
+
+      if mapping.rewrite then
+        local rewrite_result = mapping.rewrite({
+          fs = local_file_path,
+          remote = server_path,
+          extension = vim.fn.fnamemodify(local_file_path, ":e"),
+        })
+
+        if rewrite_result then
+          server_path = rewrite_result
+        else
+          server_path = nil
+        end
+      end
+
+      break
+    end
+  end
+
+  return server_path
+end
+
 M.pick_host = nio.wrap(function(cb)
   local hosts = vim.deepcopy(config.options.hosts)
 
