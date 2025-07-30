@@ -8,8 +8,8 @@ M.pick_host = nio.wrap(function(cb)
 
   table.insert(hosts, 1, { label = "Other", host = "CUSTOM-HOST" })
 
-  -- We have to use vim.ui.select because noice does not support select created
-  -- with nio.ui.select
+  -- We have to use vim.ui.select because noice.nvim does not support select
+  -- created with nio.ui.select
   vim.ui.select(hosts, {
     prompt = "Select host:",
     format_item = function(item)
