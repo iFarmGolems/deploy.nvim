@@ -6,7 +6,7 @@ local M = {}
 M.pick_host = nio.wrap(function(cb)
   local hosts = vim.deepcopy(config.options.hosts)
 
-  table.insert(hosts, 1, { label = "Other", host = "CUSTOM_HOST" })
+  table.insert(hosts, 1, { label = "Other", host = "CUSTOM-HOST" })
 
   -- We have to use vim.ui.select because noice does not support select created
   -- with nio.ui.select
@@ -24,7 +24,7 @@ M.pick_host = nio.wrap(function(cb)
       return cb(nil)
     end
 
-    if choice.host == "CUSTOM_HOST" then
+    if choice.host == "CUSTOM-HOST" then
       local custom_host = vim.fn.input("Enter custom host: ")
 
       if custom_host == "" then
