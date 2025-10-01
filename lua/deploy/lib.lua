@@ -95,7 +95,7 @@ M.transfer = function(opts)
   vim.system(command, { text = true }, function(handle)
     if handle.code == 0 then
       vim.notify("Deploy successful.")
-    elseif handle.code == 3 then
+    elseif handle.code == 3 or handle.code == 12 then
       M.create_server_dir(server_path, host, function(success)
         if success then
           M.transfer(opts)
