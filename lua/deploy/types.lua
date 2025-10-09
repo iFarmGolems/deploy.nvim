@@ -2,9 +2,9 @@
 ---@meta DeployTypes
 
 ---@class RewriteFunctionContext
----@field fs string Local filesystem path.
----@field remote string Remote path.
----@field extension string The file extension - if applicable. If no file extension is present, this will be an empty string.
+---@field local_path string Local filesystem path.
+---@field remote_path string Remote path.
+---@field file_extension string | nil The file extension of the local file, or nil if it has none.
 
 ---@alias RewriteFunction fun(context: RewriteFunctionContext): string | false | nil
 
