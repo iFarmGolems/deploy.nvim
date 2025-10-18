@@ -14,12 +14,12 @@
 ---@field rewrite? RewriteFunction An optional function to rewrite the remote path before deployment.
 
 ---@class DeployMapping
----@field fs string Local filesystem path.
----@field remote string Remote path.
----@field rewrite? RewriteFunction An optional function to rewrite the remote path before deployment.
+---@field fs string Local filesystem folder.
+---@field remote string Remote folder.
+---@field rewrite? RewriteFunction An optional function to rewrite the server path before deployment.
 
 ---@class DeployConfig
----@field timeout? number The timeout for deployment (Seconds). Default is 3.
+---@field timeout number The timeout for deployment (Seconds). Default is 3.
 ---@field hosts DeployHost[] A table of hosts to which we can deploy.
 ---@field mapping DeployMapping[] A table of mappings from local filesystem paths to remote paths.
 
