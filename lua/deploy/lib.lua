@@ -5,7 +5,7 @@ local nio = require("nio")
 local M = {}
 
 ---@type fun(context: DeployContext): {code: integer, out: string}
-M.do_rsync = nio.create(
+M.fire_rsync = nio.create(
   ---@param context DeployContext
   function(context)
     local rsync_args = {
@@ -33,22 +33,67 @@ M.do_rsync = nio.create(
   1
 )
 
-M.test = function(should_notify)
+---@type fun(context: DeployContext): {code: integer, out: string}
+M.create_remote_dir = nio.create(
+  ---@param context DeployContext
+  function(context)
+    local ssh_args = {
+      "root@" .. context.host,
+      "mkdir -p " .. context.destination:match("(.*/)"),
+    }
+
+    local process = nio.process.run({
+      cmd = "ssh",
+      args = ssh_args,
+    })
+
+    if process == nil then
+      return { -1, "Failed to start ssh process to make remote directory" }
+    end
+
+    local code = process.result(true)
+    local out = code == 0 and process.stdout.read() or process.stderr.read()
+    return { code = code, out = out }
+  end,
+  1
+)
+
+M.test = function()
   nio.run(function()
     --- get current buffer path
-    local file_path = vim.fn.expand("%:p")
-    local server_path = M.get_server_path(file_path)
+    local source = vim.fn.expand("%:p")
+    local destination = M.get_server_path(source)
     local host = "10.111.2.42"
 
+    if not destination then
+      vim.notify("No mapping found for file: " .. source, vim.log.levels.ERROR)
+      return
+    end
+
     local context = {
-      source = file_path,
-      destination = server_path,
+      source = source,
+      destination = destination,
       host = host,
     }
 
-    local res = M.do_rsync(context)
+    local res = M.fire_rsync(context)
 
-    vim.notify("Rsync exited with code: " .. res.code .. "\nOutput: " .. res.out)
+    if res.code == 0 then
+      vim.notify("Deploy successful (" .. context.host .. ")")
+      return
+    end
+
+    if res.code == 3 or res.code == 12 then
+      vim.notify("Remote directory does not exist. Creating...")
+      local dir_res = M.create_remote_dir(context)
+      if dir_res.code == 0 then
+        vim.notify("Remote directory created. Retrying rsync...")
+        res = M.fire_rsync(context)
+      else
+        vim.notify("Failed to create remote directory: " .. dir_res.out, vim.log.levels.ERROR)
+        return
+      end
+    end
   end)
 end
 
