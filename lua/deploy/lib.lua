@@ -3,10 +3,13 @@ local a = require("plenary.async")
 
 local M = {}
 
-M.is_deployable = function(file_path)
-  return vim.fn.filereadable(file_path) == 1 and vim.fn.isdirectory(file_path) == 0
+M.test = function(should_notify) end
+
+M.is_deployable = function(source)
+  return vim.fn.filereadable(source) == 1 and vim.fn.isdirectory(source) == 0
 end
 
+---@return string|nil
 M.get_server_path = function(file_path)
   if not M.is_deployable(file_path) then
     return nil
