@@ -4,7 +4,48 @@ local nio = require("nio")
 
 local M = {}
 
-M.test = function(should_notify) end
+M.do_rsync = nio.create(function(context)
+  local rsync_args = {
+    "--timeout=" .. config.options.timeout,
+    "-avze",
+    "ssh",
+    context.source,
+    "root@" .. context.host .. ":" .. context.destination,
+  }
+
+  local process = nio.process.run({
+    cmd = "rsync",
+    args = rsync_args,
+  })
+
+  if process == nil then
+    return { -1, "Failed to start rsync process" }
+  end
+
+  local code = process.result(true)
+  local out = code == 0 and process.stdout.read() or process.stderr.read()
+
+  return { code = code, out = out }
+end, 1)
+
+M.test = function(should_notify)
+  nio.run(function()
+    --- get current buffer path
+    local file_path = vim.fn.expand("%:p")
+    local server_path = M.get_server_path(file_path)
+    local host = "10.111.2.42"
+
+    local context = {
+      source = file_path,
+      destination = server_path,
+      host = host,
+    }
+
+    local res = M.do_rsync(context)
+
+    vim.notify("Rsync exited with code: " .. res.code .. "\nOutput: " .. res.out)
+  end)
+end
 
 M.is_deployable = function(source)
   return vim.fn.filereadable(source) == 1 and vim.fn.isdirectory(source) == 0
