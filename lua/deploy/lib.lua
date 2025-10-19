@@ -4,29 +4,34 @@ local nio = require("nio")
 
 local M = {}
 
-M.do_rsync = nio.create(function(context)
-  local rsync_args = {
-    "--timeout=" .. config.options.timeout,
-    "-avze",
-    "ssh",
-    context.source,
-    "root@" .. context.host .. ":" .. context.destination,
-  }
+---@type fun(context: DeployContext): {code: integer, out: string}
+M.do_rsync = nio.create(
+  ---@param context DeployContext
+  function(context)
+    local rsync_args = {
+      "--timeout=" .. config.options.timeout,
+      "-avze",
+      "ssh",
+      context.source,
+      "root@" .. context.host .. ":" .. context.destination,
+    }
 
-  local process = nio.process.run({
-    cmd = "rsync",
-    args = rsync_args,
-  })
+    local process = nio.process.run({
+      cmd = "rsync",
+      args = rsync_args,
+    })
 
-  if process == nil then
-    return { -1, "Failed to start rsync process" }
-  end
+    if process == nil then
+      return { -1, "Failed to start rsync process" }
+    end
 
-  local code = process.result(true)
-  local out = code == 0 and process.stdout.read() or process.stderr.read()
+    local code = process.result(true)
+    local out = code == 0 and process.stdout.read() or process.stderr.read()
 
-  return { code = code, out = out }
-end, 1)
+    return { code = code, out = out }
+  end,
+  1
+)
 
 M.test = function(should_notify)
   nio.run(function()
