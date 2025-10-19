@@ -1,12 +1,15 @@
 
 ---@meta DeployTypes
 
----@class RewriteFunctionContext
----@field local_path string Local filesystem path.
----@field remote_path string Remote path.
----@field file_extension string | nil The file extension of the local file, or nil if it has none.
+---@class DeployContext
+---@field source string Local source file path
+---@field destination string Remote destination file path
+---@field host string The host to which we are deploying
 
----@alias RewriteFunction fun(context: RewriteFunctionContext): string | false | nil
+---@class RewriteFunctionContext : DeployContext
+---@field extension? string (Optional) The file extension of the source file
+
+---@alias RewriteFunction fun(context: RewriteFunctionContext): string | nil | false
 
 ---@class DeployHost
 ---@field host string The host to which we can deploy.
