@@ -1,5 +1,6 @@
 local config = require("deploy.config")
 local a = require("plenary.async")
+local nio = require("nio")
 
 local M = {}
 
