@@ -4,6 +4,17 @@ local nio = require("nio")
 
 local M = {}
 
+---@param opts {msg: string, level?: integer, should_notify?: boolean}
+M.notify = function(opts)
+  local msg = opts.msg or ""
+  local level = opts.level or vim.log.levels.INFO
+  local should_notify = opts.should_notify or false
+
+  if should_notify then
+    vim.notify("[Deploy] " .. msg, level)
+  end
+end
+
 ---@type fun(context: DeployContext): {code: integer, out: string}
 M.shell_do_rsync = nio.create(
   ---@param context DeployContext
