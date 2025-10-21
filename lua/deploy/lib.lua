@@ -69,6 +69,7 @@ M.shell_create_remote_dir = nio.create(
   1
 )
 
+---@type fun(): DeployHost|nil
 M.pick_host_nio = nio.create(function()
   ---@type DeployHost[]
   local hosts = vim.deepcopy(config.options.hosts)
