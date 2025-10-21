@@ -89,6 +89,14 @@ M.test = function()
       if dir_res.code == 0 then
         vim.notify("Remote directory created. Retrying rsync...")
         res = M.shell_do_rsync(context)
+
+        if res.code == 0 then
+          vim.notify("Deploy successful (" .. context.host .. ")")
+          return
+        else
+          vim.notify("Deploy failed after creating directory: " .. res.out, vim.log.levels.ERROR)
+          return
+        end
       else
         vim.notify("Failed to create remote directory: " .. dir_res.out, vim.log.levels.ERROR)
         return
