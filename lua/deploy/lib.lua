@@ -69,6 +69,45 @@ M.shell_create_remote_dir = nio.create(
   1
 )
 
+M.pick_host_nio = nio.create(function()
+  ---@type DeployHost[]
+  local hosts = vim.deepcopy(config.options.hosts)
+
+  table.insert(hosts, 1, { label = "Other", host = "CUSTOM_HOST" })
+
+  local host = nio.ui.select(hosts, {
+    prompt = "Select host:",
+    format_item = function(item)
+      return item.label .. " (" .. item.host .. ")"
+    end,
+  })
+
+  if host then
+    vim.print(vim.inspect(host))
+
+    if host.host == "CUSTOM_HOST" then
+      local custom_host = nio.ui.input({
+        prompt = "Enter host:",
+        default = vim.g.DEPLOY_LAST_HOST or "",
+        highlight = function() end,
+      })
+
+      if custom_host then
+        vim.g.DEPLOY_LAST_HOST = custom_host
+        return custom_host
+      else
+        return nil
+      end
+    end
+
+    vim.g.DEPLOY_LAST_HOST = host.host
+
+    return host
+  else
+    return nil
+  end
+end, 0)
+
 M.test = function()
   nio.run(function()
     --- get current buffer path
