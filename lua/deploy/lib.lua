@@ -126,6 +126,7 @@ M.test = nio.create(function()
     return
   end
 
+  ---@type DeployContext
   local context = {
     source = source,
     destination = destination,
