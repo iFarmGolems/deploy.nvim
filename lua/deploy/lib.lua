@@ -6,13 +6,16 @@ local M = {}
 
 ---@param opts {msg: string, level?: integer, silent?: boolean}
 M.notify = function(opts)
-  local msg = opts.msg or ""
-  local level = opts.level or vim.log.levels.INFO
   local silent = opts.silent or false
 
-  if not silent then
-    vim.notify("[Deploy] " .. msg, level)
+  if silent then
+    return
   end
+
+  local msg = opts.msg or ""
+  local level = opts.level or vim.log.levels.INFO
+
+  vim.notify("[Deploy] " .. msg, level)
 end
 
 ---@type fun(context: DeployContext): {code: integer, out: string}
