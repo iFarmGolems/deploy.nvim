@@ -84,7 +84,6 @@ M.pick_host_nio = nio.create(function()
   })
 
   if host then
-    vim.print(vim.inspect(host))
 
     if host.host == "CUSTOM_HOST" then
       local custom_host = nio.ui.input({
