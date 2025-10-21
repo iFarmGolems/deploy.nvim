@@ -4,13 +4,13 @@ local nio = require("nio")
 
 local M = {}
 
----@param opts {msg: string, level?: integer, should_notify?: boolean}
+---@param opts {msg: string, level?: integer, silent?: boolean}
 M.notify = function(opts)
   local msg = opts.msg or ""
   local level = opts.level or vim.log.levels.INFO
-  local should_notify = opts.should_notify or false
+  local silent = opts.silent or false
 
-  if should_notify then
+  if not silent then
     vim.notify("[Deploy] " .. msg, level)
   end
 end
