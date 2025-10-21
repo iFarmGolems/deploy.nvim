@@ -113,7 +113,12 @@ M.test = function()
     --- get current buffer path
     local source = vim.fn.expand("%:p")
     local destination = M.get_server_path(source)
-    local host = "10.111.2.42"
+    local host = M.pick_host_nio()
+
+    if not host then
+      vim.notify("Aborting deploy: No host selected", vim.log.levels.WARN)
+      return
+    end
 
     if not destination then
       vim.notify("No mapping found for file: " .. source, vim.log.levels.ERROR)
@@ -123,7 +128,7 @@ M.test = function()
     local context = {
       source = source,
       destination = destination,
-      host = host,
+      host = host.host,
     }
 
     local res = M.shell_do_rsync(context)
