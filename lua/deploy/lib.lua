@@ -84,7 +84,6 @@ M.pick_host_nio = nio.create(function()
   })
 
   if host then
-
     if host.host == "CUSTOM_HOST" then
       local custom_host = nio.ui.input({
         prompt = "Enter host:",
@@ -94,7 +93,7 @@ M.pick_host_nio = nio.create(function()
 
       if custom_host then
         vim.g.DEPLOY_LAST_HOST = custom_host
-        return custom_host
+        return { label = "Custom host", host = custom_host }
       else
         return nil
       end
