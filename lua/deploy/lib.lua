@@ -1,12 +1,171 @@
 local config = require("deploy.config")
 local a = require("plenary.async")
+local nio = require("nio")
 
 local M = {}
 
-M.is_deployable = function(file_path)
-  return vim.fn.filereadable(file_path) == 1 and vim.fn.isdirectory(file_path) == 0
+---@param opts {msg: string, level?: integer, silent?: boolean}
+M.notify = function(opts)
+  local silent = opts.silent or false
+
+  if silent then
+    return
+  end
+
+  local msg = opts.msg or ""
+  local level = opts.level or vim.log.levels.INFO
+
+  vim.notify("[Deploy] " .. msg, level)
 end
 
+---@type fun(context: DeployContext): {code: integer, out: string}
+M.shell_do_rsync = nio.create(
+  ---@param context DeployContext
+  function(context)
+    local rsync_args = {
+      "--timeout=" .. config.options.timeout,
+      "-avze",
+      "ssh",
+      context.source,
+      "root@" .. context.host .. ":" .. context.destination,
+    }
+
+    local process = nio.process.run({
+      cmd = "rsync",
+      args = rsync_args,
+    })
+
+    if process == nil then
+      return { -1, "Failed to start rsync process" }
+    end
+
+    local code = process.result(true)
+    local out = code == 0 and process.stdout.read() or process.stderr.read()
+
+    return { code = code, out = out }
+  end,
+  1
+)
+
+---@type fun(context: DeployContext): {code: integer, out: string}
+M.shell_create_remote_dir = nio.create(
+  ---@param context DeployContext
+  function(context)
+    local ssh_args = {
+      "root@" .. context.host,
+      "mkdir -p " .. context.destination:match("(.*/)"),
+    }
+
+    local process = nio.process.run({
+      cmd = "ssh",
+      args = ssh_args,
+    })
+
+    if process == nil then
+      return { -1, "Failed to start ssh process to make remote directory" }
+    end
+
+    local code = process.result(true)
+    local out = code == 0 and process.stdout.read() or process.stderr.read()
+    return { code = code, out = out }
+  end,
+  1
+)
+
+---@type fun(): DeployHost|nil
+M.pick_host_nio = nio.create(function()
+  ---@type DeployHost[]
+  local hosts = vim.deepcopy(config.options.hosts)
+
+  table.insert(hosts, 1, { label = "Other", host = "CUSTOM_HOST" })
+
+  local host = nio.ui.select(hosts, {
+    prompt = "Select host:",
+    format_item = function(item)
+      return item.label .. " (" .. item.host .. ")"
+    end,
+  })
+
+  if host then
+    if host.host == "CUSTOM_HOST" then
+      local custom_host = nio.ui.input({
+        prompt = "Enter host:",
+        default = vim.g.DEPLOY_LAST_HOST or "",
+        highlight = function() end,
+      })
+
+      if custom_host then
+        vim.g.DEPLOY_LAST_HOST = custom_host
+        return { label = "Custom host", host = custom_host }
+      else
+        return nil
+      end
+    end
+
+    vim.g.DEPLOY_LAST_HOST = host.host
+
+    return host
+  else
+    return nil
+  end
+end, 0)
+
+M.test = nio.create(function()
+  --- get current buffer path
+  local source = vim.fn.expand("%:p")
+  local destination = M.get_server_path(source)
+  local host = M.pick_host_nio()
+
+  if not host then
+    vim.notify("Aborting deploy: No host selected", vim.log.levels.WARN)
+    return
+  end
+
+  if not destination then
+    vim.notify("No mapping found for file: " .. source, vim.log.levels.ERROR)
+    return
+  end
+
+  ---@type DeployContext
+  local context = {
+    source = source,
+    destination = destination,
+    host = host.host,
+  }
+
+  local res = M.shell_do_rsync(context)
+
+  if res.code == 0 then
+    vim.notify("Deploy successful (" .. context.host .. ")")
+    return
+  end
+
+  if res.code == 3 or res.code == 12 then
+    vim.notify("Remote directory does not exist. Creating...")
+    local dir_res = M.shell_create_remote_dir(context)
+    if dir_res.code == 0 then
+      vim.notify("Remote directory created. Retrying rsync...")
+      res = M.shell_do_rsync(context)
+
+      if res.code == 0 then
+        vim.notify("Deploy successful (" .. context.host .. ")")
+        return
+      else
+        vim.notify("Deploy failed after creating directory: " .. res.out, vim.log.levels.ERROR)
+        return
+      end
+    else
+      vim.notify("Failed to create remote directory: " .. dir_res.out, vim.log.levels.ERROR)
+      return
+    end
+  end
+end)
+
+M.is_deployable = function(source)
+  return vim.fn.filereadable(source) == 1 and vim.fn.isdirectory(source) == 0
+end
+
+---@return string|nil
 M.get_server_path = function(file_path)
   if not M.is_deployable(file_path) then
     return nil
