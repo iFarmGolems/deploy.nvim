@@ -1,5 +1,4 @@
 local config = require("deploy.config")
-local a = require("plenary.async")
 local nio = require("nio")
 
 local M = {}
@@ -192,41 +191,6 @@ M.get_server_path = function(file_path)
   return server_path
 end
 
-M.pick_host = a.wrap(function(callback)
-  local hosts = vim.deepcopy(config.options.hosts)
-
-  table.insert(hosts, 1, { label = "Other", host = "CUSTOM_HOST" })
-
-  vim.ui.select(hosts, {
-    prompt = "Select host:",
-    format_item = function(item)
-      return item.label .. " (" .. item.host .. ")"
-    end,
-  }, function(choice)
-    if choice then
-      if choice.host == "CUSTOM_HOST" then
-        vim.ui.input({
-          prompt = "Enter host:",
-          default = vim.g.DEPLOY_LAST_HOST or "",
-        }, function(host)
-          if host then
-            vim.g.DEPLOY_LAST_HOST = host
-            callback(host)
-          else
-            callback(nil)
-          end
-        end)
-        return
-      end
-
-      vim.g.DEPLOY_LAST_HOST = choice.host
-      callback(choice.host)
-    else
-      callback(nil)
-    end
-  end)
-end, 1)
-
 M.toggle_deploy_on_save = function()
   vim.g.DEPLOY_ON_SAVE = not vim.g.DEPLOY_ON_SAVE
 
@@ -291,25 +255,6 @@ M.create_server_dir = function(server_path, host, callback)
   end)
 end
 
-M.deploy_file = a.void(function(file)
-  local server_path = M.get_server_path(file)
-
-  if not server_path then
-    vim.notify("No mapping found for " .. file, vim.log.levels.ERROR)
-
-    return
-  end
-
-  local host = M.pick_host()
-
-  if not host then
-    vim.notify("Abort: No host selected", vim.log.levels.WARN)
-    return
-  end
-
-  M.transfer({ file, server_path, host })
-end)
-
 M.auto_deploy_file = function(file)
   local server_path = M.get_server_path(file)
   local host = vim.g.DEPLOY_LAST_HOST
@@ -345,48 +290,5 @@ M.diff_buffer_with_string = function(str)
     once = true, -- Ensure the autocommand runs only once
   })
 end
-
-M.compare_with_remote_file = a.void(function()
-  local current_file = vim.fn.expand("%:p")
-  local server_path = M.get_server_path(current_file)
-  local host = M.pick_host()
-
-  if not server_path then
-    vim.notify("No mapping found for " .. current_file, vim.log.levels.ERROR)
-    return
-  end
-
-  if not host then
-    vim.notify("Abort: No host selected", vim.log.levels.WARN)
-    return
-  end
-
-  local fetch_command = {
-    "ssh",
-    "root@" .. host,
-    "cat " .. server_path .. " > /tmp/nvim-deploy-compare-content",
-  }
-
-  vim.system(fetch_command, { text = true }, function(fetch_handle)
-    if fetch_handle.code == 0 then
-      vim.schedule(function()
-        local current_file_text = vim.fn.join(vim.fn.readfile(current_file), "\n")
-        local remote_text = vim.fn.join(vim.fn.readfile("/tmp/nvim-deploy-compare-content"), "\n")
-
-        if current_file_text == remote_text then
-          vim.notify("No differences found.")
-          return
-        else
-          M.diff_buffer_with_string(remote_text)
-        end
-      end)
-    else
-      vim.notify(
-        "Failed to fetch remote file!\nExit code: " .. fetch_handle.code .. ".\nSTDERR: " .. fetch_handle.stderr,
-        vim.log.levels.ERROR
-      )
-    end
-  end)
-end)
 
 return M
