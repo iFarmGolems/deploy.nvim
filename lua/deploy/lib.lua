@@ -18,7 +18,7 @@ M.notify = function(opts)
 end
 
 ---@type fun(context: DeployContext): {code: integer, out: string}
-M.shell_do_rsync = nio.create(
+M.do_rsync = nio.create(
   ---@param context DeployContext
   function(context)
     local rsync_args = {
@@ -47,7 +47,7 @@ M.shell_do_rsync = nio.create(
 )
 
 ---@type fun(context: DeployContext): {code: integer, out: string}
-M.shell_create_remote_dir = nio.create(
+M.create_remote_dir = nio.create(
   ---@param context DeployContext
   function(context)
     local ssh_args = {
@@ -109,7 +109,7 @@ M.pick_host_nio = nio.create(function()
   end
 end, 0)
 
-M.test = nio.create(function()
+M.deploy_file = nio.create(function()
   --- get current buffer path
   local source = vim.fn.expand("%:p")
   local destination = M.get_server_path(source)
@@ -132,7 +132,7 @@ M.test = nio.create(function()
     host = host.host,
   }
 
-  local res = M.shell_do_rsync(context)
+  local res = M.do_rsync(context)
 
   if res.code == 0 then
     vim.notify("Deploy successful (" .. context.host .. ")")
@@ -141,10 +141,10 @@ M.test = nio.create(function()
 
   if res.code == 3 or res.code == 12 then
     vim.notify("Remote directory does not exist. Creating...")
-    local dir_res = M.shell_create_remote_dir(context)
+    local dir_res = M.create_remote_dir(context)
     if dir_res.code == 0 then
       vim.notify("Remote directory created. Retrying rsync...")
-      res = M.shell_do_rsync(context)
+      res = M.do_rsync(context)
 
       if res.code == 0 then
         vim.notify("Deploy successful (" .. context.host .. ")")

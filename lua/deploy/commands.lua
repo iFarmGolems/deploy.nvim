@@ -1,5 +1,4 @@
 local lib = require("deploy.lib")
-local lib2 = require("deploy.lib2")
 
 ---@type table<string, Subcommand>
 local subcommand_tbl = {
@@ -18,11 +17,6 @@ local subcommand_tbl = {
   compare = {
     impl = function()
       lib.compare_with_remote_file()
-    end,
-  },
-  test = {
-    impl = function()
-      lib.test()
     end,
   },
   -- install = {
