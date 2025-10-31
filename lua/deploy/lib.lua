@@ -194,9 +194,9 @@ M.toggle_deploy_on_save = function()
   vim.g.DEPLOY_ON_SAVE = not vim.g.DEPLOY_ON_SAVE
 
   if vim.g.DEPLOY_ON_SAVE then
-    vim.notify("Deploy on save enabled", vim.log.levels.INFO)
+    M.notify({ msg = "Deploy on save enabled" })
   else
-    vim.notify("Deploy on save disabled", vim.log.levels.INFO)
+    M.notify({ msg = "Deploy on save disabled" })
   end
 end
 
