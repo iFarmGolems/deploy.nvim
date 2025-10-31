@@ -17,7 +17,7 @@ M.notify = function(opts)
   vim.notify("[Deploy] " .. msg, level)
 end
 
----@type fun(context: DeployContext): {code: integer, out: string}
+---@type fun(context: DeployContext): ShellCommandResult
 M.do_rsync = nio.create(
   ---@param context DeployContext
   function(context)
@@ -46,7 +46,7 @@ M.do_rsync = nio.create(
   1
 )
 
----@type fun(context: DeployContext): {code: integer, out: string}
+---@type fun(context: DeployContext): ShellCommandResult
 M.create_remote_dir = nio.create(
   ---@param context DeployContext
   function(context)
@@ -72,7 +72,7 @@ M.create_remote_dir = nio.create(
 )
 
 ---@type fun(): DeployHost|nil
-M.pick_host_nio = nio.create(function()
+M.pick_host = nio.create(function()
   ---@type DeployHost[]
   local hosts = vim.deepcopy(config.options.hosts)
 
@@ -109,11 +109,10 @@ M.pick_host_nio = nio.create(function()
   end
 end, 0)
 
-M.deploy_file = nio.create(function()
-  --- get current buffer path
-  local source = vim.fn.expand("%:p")
+---@type fun(source: string): nil
+M.deploy_file = nio.create(function(source)
   local destination = M.get_server_path(source)
-  local host = M.pick_host_nio()
+  local host = M.pick_host()
 
   if not host then
     vim.notify("Aborting deploy: No host selected", vim.log.levels.WARN)

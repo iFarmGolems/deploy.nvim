@@ -11,6 +11,10 @@
 
 ---@alias RewriteFunction fun(context: RewriteFunctionContext): DeployContext | nil | false
 
+---@class ShellCommandResult
+---@field code number The exit code of the command.
+---@field out string The standard output or error output of the command.
+
 ---@class DeployHost
 ---@field host string The host to which we can deploy.
 ---@field label string A label for the host.
