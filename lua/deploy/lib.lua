@@ -14,7 +14,7 @@ M.notify = function(opts)
   local msg = opts.msg or ""
   local level = opts.level or vim.log.levels.INFO
 
-  vim.notify("[Deploy] " .. msg, level)
+  vim.notify("[[Deploy]] " .. msg, level)
 end
 
 ---@type fun(context: DeployContext): ShellCommandResult
