@@ -9,7 +9,7 @@
 ---@class RewriteFunctionContext : DeployContext
 ---@field extension? string (Optional) The file extension of the source file
 
----@alias RewriteFunction fun(context: RewriteFunctionContext): string | nil | false
+---@alias RewriteFunction fun(context: RewriteFunctionContext): DeployContext | nil | false
 
 ---@class DeployHost
 ---@field host string The host to which we can deploy.
