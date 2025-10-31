@@ -9,7 +9,7 @@
 ---@class RewriteFunctionContext : DeployContext
 ---@field extension? string (Optional) The file extension of the source file
 
----@alias RewriteFunction fun(context: RewriteFunctionContext): DeployContext | nil | false
+---@alias RewriteFunction fun(context: RewriteFunctionContext): RewriteFunctionContext | nil | false
 
 ---@class ShellCommandResult
 ---@field code number The exit code of the command.
