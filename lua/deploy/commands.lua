@@ -3,11 +3,9 @@ local lib = require("deploy.lib")
 ---@type table<string, Subcommand>
 local subcommand_tbl = {
   file = {
-    impl = function(args, opts)
+    impl = function()
       lib.deploy_file(vim.fn.expand("%:p"))
-      -- Implementation (args is a list of strings)
     end,
-    -- This subcommand has no completions
   },
   toggle = {
     impl = function()
