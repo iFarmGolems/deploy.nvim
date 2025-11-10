@@ -7,7 +7,7 @@ end
 
 ---@param host DeployHost
 M.set_last_host = function(host)
-  assert(type(host) == "table" and host.host and host.label, "Invalid host object")
+  assert(type(host) == "table" and host.address and host.label, "Invalid host object")
   vim.g.DEPLOY_LAST_HOST = host
 end
 
