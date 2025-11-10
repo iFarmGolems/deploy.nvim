@@ -16,7 +16,7 @@
 ---@field out string The standard output or error output of the command.
 
 ---@class DeployHost
----@field host string The host to which we can deploy.
+---@field address string The host address to which we can deploy.
 ---@field label string A label for the host.
 ---@field rewrite? RewriteFunction An optional function to rewrite the remote path before deployment.
 
