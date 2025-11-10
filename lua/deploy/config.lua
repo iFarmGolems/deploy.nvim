@@ -16,6 +16,11 @@ M.setup = function(opts)
 
   ---@type DeployConfig
   M.options = vim.tbl_deep_extend("force", M.defaults, opts or {})
+
+  -- sort options.mapping by length of fs descending to match the most specific path first
+  table.sort(M.options.mapping, function(a, b)
+    return #a.fs > #b.fs
+  end)
 end
 
 return M
