@@ -182,12 +182,6 @@ M.get_server_path = function(file_path)
   local mapping = config.options.mapping
   local server_path = nil
 
-  -- Sort the mapping by fs length in descending order
-  -- so that we can match the most specific path first
-  table.sort(mapping, function(x, y)
-    return #x.fs > #y.fs
-  end)
-
   for _, map in ipairs(mapping) do
     local fs = vim.fn.expand(map.fs)
     -- if file_path starts with fs then we can deploy it
