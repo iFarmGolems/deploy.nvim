@@ -1,3 +1,5 @@
+local utils = require("deploy.utils")
+
 local M = {}
 
 ---@type DeployConfig
@@ -11,7 +13,7 @@ M.options = M.defaults
 
 ---@param opts DeployConfig
 M.setup = function(opts)
-  vim.g.DEPLOY_LAST_HOST = vim.g.DEPLOY_LAST_HOST or "0.0.0.0"
+  vim.g.DEPLOY_LAST_HOST = utils.get_last_host()
   vim.g.DEPLOY_ON_SAVE = vim.g.DEPLOY_ON_SAVE or false
 
   ---@type DeployConfig
