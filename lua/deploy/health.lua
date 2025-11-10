@@ -18,7 +18,7 @@ local function check_config()
   else
     for _, host in ipairs(deploy_config.hosts) do
       if not host.address or not host.label then
-        vim.health.error("Deploy host is missing address or label")
+        vim.health.error("Deploy host: " .. vim.inspect(host) .. " is missing 'address' or 'label' properties")
         return
       end
     end
@@ -29,7 +29,7 @@ local function check_config()
   else
     for _, map in ipairs(deploy_config.mapping) do
       if not map.fs or not map.remote then
-        vim.health.error("Deploy mapping is missing fs or remote path")
+        vim.health.error("Deploy mapping: " .. vim.inspect(map) .. " is missing 'fs' or 'remote' properties")
         return
       end
     end
