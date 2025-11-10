@@ -11,4 +11,15 @@ M.set_last_host = function(host)
   vim.g.DEPLOY_LAST_HOST = host
 end
 
+---@return string
+M.get_last_custom_address = function()
+  return vim.g.DEPLOY_LAST_CUSTOM_ADDRESS or ""
+end
+
+---@param address string
+M.set_last_custom_address = function(address)
+  assert(type(address) == "string", "Address must be a string")
+  vim.g.DEPLOY_LAST_CUSTOM_ADDRESS = address
+end
+
 return M
