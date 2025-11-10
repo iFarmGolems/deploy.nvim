@@ -4,7 +4,7 @@
 ---@class DeployContext
 ---@field source string Local source file path
 ---@field destination string Remote destination file path
----@field host string The host to which we are deploying
+---@field address string The host address to which we are deploying
 
 ---@class RewriteFunctionContext : DeployContext
 ---@field extension? string (Optional) The file extension of the source file
