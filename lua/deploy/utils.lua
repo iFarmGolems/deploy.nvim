@@ -22,4 +22,8 @@ M.set_last_custom_address = function(address)
   vim.g.DEPLOY_LAST_CUSTOM_ADDRESS = address
 end
 
+M.debug = function(...)
+  print(vim.inspect(...))
+end
+
 return M
