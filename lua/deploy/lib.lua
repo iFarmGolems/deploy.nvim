@@ -184,8 +184,13 @@ M.get_server_path = function(file_path)
   return server_path
 end
 
-M.toggle_deploy_on_save = function()
-  vim.g.DEPLOY_ON_SAVE = not vim.g.DEPLOY_ON_SAVE
+---@param override? boolean If provided, sets the flag to this value
+M.toggle_deploy_on_save = function(override)
+  if override ~= nil then
+    vim.g.DEPLOY_ON_SAVE = override
+  else
+    vim.g.DEPLOY_ON_SAVE = not vim.g.DEPLOY_ON_SAVE
+  end
 
   if vim.g.DEPLOY_ON_SAVE then
     M.notify({ msg = "Deploy on save enabled" })
