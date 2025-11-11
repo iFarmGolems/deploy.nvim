@@ -4,7 +4,7 @@ local lib = require("deploy.lib")
 local subcommand_tbl = {
   file = {
     impl = function()
-      lib.deploy_file(vim.fn.expand("%:p"))
+      lib.deploy_file(vim.fn.expand("%:p"), { silent = false })
     end,
   },
   toggle = {
@@ -84,7 +84,8 @@ vim.api.nvim_create_user_command("Deploy", my_cmd, {
 vim.api.nvim_create_autocmd("BufWritePost", {
   callback = function(opts)
     if vim.g.DEPLOY_ON_SAVE then
-      lib.auto_deploy_file(opts.match)
+      local source = opts.match
+      lib.deploy_file(source, { silent = false, deploy_to_last_host = true })
     end
   end,
 })
