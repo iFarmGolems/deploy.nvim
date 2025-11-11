@@ -6,14 +6,19 @@
 ---@field destination string Remote destination file path
 ---@field address string The host address to which we are deploying
 
+---@class DeployOptions
+---@field silent? boolean Whether to suppress output messages
+---@field deploy_to_last_host? boolean Whether to deploy to the last used host without prompting
+
 ---@class RewriteFunctionContext : DeployContext
 ---@field extension? string (Optional) The file extension of the source file
 
----@alias RewriteFunction fun(context: RewriteFunctionContext): RewriteFunctionContext | nil | false
+---@alias RewriteFunction fun(context: RewriteFunctionContext): false|nil
 
 ---@class ShellCommandResult
 ---@field code number The exit code of the command.
 ---@field out string The standard output or error output of the command.
+---@field command string The full command that was executed.
 
 ---@class DeployHost
 ---@field address string The host address to which we can deploy.
