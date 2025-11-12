@@ -203,7 +203,7 @@ M.deploy_file = nio.create(function(source, options)
       .. "\n\nCommand used: \n"
       .. rsync_res.command
       .. "\n\nOutput:\n"
-      .. rsync_res.out,
+      .. utils.rsync_err_code_to_human(rsync_res.code),
     level = vim.log.levels.ERROR,
   })
 end, 2)
