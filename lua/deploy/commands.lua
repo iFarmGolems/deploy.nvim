@@ -7,6 +7,12 @@ local subcommand_tbl = {
       lib.deploy_file(vim.fn.expand("%:p"), { silent = false })
     end,
   },
+  -- alias for "file"
+  buffer = {
+    impl = function()
+      lib.deploy_file(vim.fn.expand("%:p"), { silent = false })
+    end,
+  },
   toggle = {
     impl = function()
       lib.toggle_deploy_on_save()
