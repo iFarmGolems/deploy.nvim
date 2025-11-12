@@ -24,10 +24,10 @@ local function check_config()
     end
   end
 
-  if #deploy_config.mapping == 0 then
+  if #deploy_config.mappings == 0 then
     vim.health.error("No deploy mappings configured")
   else
-    for _, map in ipairs(deploy_config.mapping) do
+    for _, map in ipairs(deploy_config.mappings) do
       if not map.fs or not map.remote then
         vim.health.error("Deploy mapping: " .. vim.inspect(map) .. " is missing 'fs' or 'remote' properties")
         return

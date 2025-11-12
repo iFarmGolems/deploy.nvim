@@ -6,7 +6,7 @@ local M = {}
 M.defaults = {
   timeout = 3,
   hosts = {},
-  mapping = {},
+  mappings = {},
 }
 
 M.options = M.defaults
@@ -20,7 +20,7 @@ M.setup = function(opts)
   M.options = vim.tbl_deep_extend("force", M.defaults, opts or {})
 
   -- sort options.mapping by length of fs descending to match the most specific path first
-  table.sort(M.options.mapping, function(a, b)
+  table.sort(M.options.mappings, function(a, b)
     return #a.fs > #b.fs
   end)
 end

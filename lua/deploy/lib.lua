@@ -218,7 +218,7 @@ M.get_file_mapping = function(source)
     return nil
   end
 
-  local deploy_mappings = config.options.mapping
+  local deploy_mappings = config.options.mappings
   local found_mapping = nil
 
   for _, mapping in ipairs(deploy_mappings) do
