@@ -248,31 +248,4 @@ M.toggle_deploy_on_save = function(override)
   end
 end
 
-M.diff_buffer_with_string = function(str)
-  -- Create a new buffer for the string
-  local diff_buf = vim.api.nvim_create_buf(true, true)
-  vim.api.nvim_buf_set_lines(diff_buf, 0, -1, false, vim.split(str, "\n"))
-
-  -- Open a vertical split with the new buffer
-  vim.cmd("vsplit")
-  vim.api.nvim_win_set_buf(0, diff_buf)
-
-  -- Enable diff mode for both buffers
-  vim.cmd("diffthis")
-  vim.cmd("wincmd p") -- Switch back to the original buffer
-  vim.cmd("diffthis")
-
-  vim.api.nvim_create_autocmd("WinClosed", {
-    pattern = tostring(vim.api.nvim_get_current_win()),
-    callback = function()
-      vim.schedule(function()
-        if vim.api.nvim_buf_is_valid(diff_buf) then
-          vim.api.nvim_buf_delete(diff_buf, { force = true }) -- Forcefully delete the buffer
-        end
-      end)
-    end,
-    once = true, -- Ensure the autocommand runs only once
-  })
-end
-
 return M
