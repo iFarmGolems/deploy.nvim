@@ -160,7 +160,7 @@ M.deploy_file = nio.create(function(source, options)
   local rsync_res = M.shell.fire_rsync(context)
 
   if rsync_res.code == 0 then
-    M.notify({ msg = "Deploy successful (" .. context.address .. ")", silent = options.silent })
+    M.notify({ msg = "Deploy successful (" .. context.address .. ")" })
     return
   end
 
@@ -168,24 +168,22 @@ M.deploy_file = nio.create(function(source, options)
   if rsync_res.code == 3 or rsync_res.code == 12 then
     M.notify({
       msg = "Remote directory does not exist. Creating...",
-      silent = options.silent,
       level = vim.log.levels.WARN,
     })
 
     local dir_res = M.shell.create_remote_dir(context)
 
     if dir_res.code == 0 then
-      M.notify({ msg = "Remote directory created. Retrying deploy...", silent = options.silent })
+      M.notify({ msg = "Remote directory created. Retrying deploy..." })
       rsync_res = M.shell.fire_rsync(context)
 
       if rsync_res.code == 0 then
-        M.notify({ msg = "Deploy successful (" .. context.address .. ")", silent = options.silent })
+        M.notify({ msg = "Deploy successful (" .. context.address .. ")" })
         return
       else
         M.notify({
           msg = "Deploy failed after creating directory: " .. rsync_res.out,
           level = vim.log.levels.ERROR,
-          silent = options.silent,
         })
         return
       end
@@ -193,7 +191,6 @@ M.deploy_file = nio.create(function(source, options)
       M.notify({
         msg = "Failed to create remote directory: " .. dir_res.out,
         level = vim.log.levels.ERROR,
-        silent = options.silent,
       })
 
       return
@@ -208,7 +205,6 @@ M.deploy_file = nio.create(function(source, options)
       .. "\n\nOutput:\n"
       .. rsync_res.out,
     level = vim.log.levels.ERROR,
-    silent = options.silent,
   })
 end, 2)
 
