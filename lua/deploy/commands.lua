@@ -81,12 +81,3 @@ vim.api.nvim_create_user_command("Deploy", my_cmd, {
   end,
   bang = true, -- If you want to support ! modifiers
 })
-
-vim.api.nvim_create_autocmd("BufWritePost", {
-  callback = function(opts)
-    if vim.g.DEPLOY_ON_SAVE then
-      local source = opts.match
-      lib.deploy_file(source, { silent = true, deploy_to_last_host = true })
-    end
-  end,
-})
