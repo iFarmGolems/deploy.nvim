@@ -18,11 +18,6 @@ local subcommand_tbl = {
       lib.toggle_deploy_on_save()
     end,
   },
-  compare = {
-    impl = function()
-      lib.compare_with_remote_file()
-    end,
-  },
   -- install = {
   --   impl = function(args, opts)
   --     -- Implementation
