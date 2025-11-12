@@ -60,10 +60,12 @@ M.shell.create_remote_dir = nio.create(
       "mkdir -p " .. context.destination:match("(.*/)"),
     }
 
-    local process = nio.process.run({
+    local process_opts = {
       cmd = "ssh",
       args = ssh_args,
-    })
+    }
+
+    local process = nio.process.run(process_opts)
 
     if process == nil then
       return { -1, "Failed to start ssh process to make remote directory" }
@@ -72,7 +74,7 @@ M.shell.create_remote_dir = nio.create(
     local code = process.result(true)
     local out = code == 0 and process.stdout.read() or process.stderr.read()
 
-    return { code = code, out = out, command = "ssh " .. table.concat(ssh_args, " ") }
+    return { code = code, out = out, command = process_opts.cmd .. " " .. table.concat(process_opts.args, " ") }
   end,
   1
 )
