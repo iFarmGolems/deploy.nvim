@@ -134,7 +134,7 @@ M.deploy_file = nio.create(function(source, options)
   if mapping.rewrite then
     local rewrite_result = mapping.rewrite(context)
 
-    if not rewrite_result then
+    if rewrite_result == false then
       M.notify({
         msg = "Aborting deploy: Mapping rewrite function returned false",
         level = vim.log.levels.WARN,
@@ -147,7 +147,7 @@ M.deploy_file = nio.create(function(source, options)
   if host.rewrite then
     local rewrite_result = host.rewrite(context)
 
-    if not rewrite_result then
+    if rewrite_result == false then
       M.notify({
         msg = "Aborting deploy: Host rewrite function returned false",
         level = vim.log.levels.WARN,
