@@ -128,7 +128,7 @@ M.deploy_file = nio.create(function(source, options)
     source = source,
     destination = destination,
     address = host.address,
-    extension = source:match("^.+(%..+)$"),
+    extension = source:match("^.+%.(.+)$"),
   }
 
   if mapping.rewrite then
