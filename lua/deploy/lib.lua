@@ -20,8 +20,7 @@ M.notify = function(opts)
   vim.notify("[[Deploy]] " .. msg, level)
 end
 
----@type fun(context: DeployContext): ShellCommandResult
-M.shell.fire_rsync = nio.create(
+M.shell.fire_rsync = utils.nio_create(
   ---@param context DeployContext
   function(context)
     local rsync_args = {
@@ -40,8 +39,7 @@ M.shell.fire_rsync = nio.create(
   1
 )
 
----@type fun(context: DeployContext): ShellCommandResult
-M.shell.create_remote_dir = nio.create(
+M.shell.create_remote_dir = utils.nio_create(
   ---@param context DeployContext
   function(context)
     local ssh_args = {
@@ -57,8 +55,7 @@ M.shell.create_remote_dir = nio.create(
   1
 )
 
----@type fun(): DeployHost|nil
-M.pick_host = nio.create(function()
+M.pick_host = utils.nio_create(function()
   local hosts = vim.deepcopy(config.options.hosts)
   local last_custom_address = utils.get_last_custom_address()
 
@@ -97,116 +94,121 @@ M.pick_host = nio.create(function()
 
     utils.set_last_host(host)
 
+    ---@type DeployHost
     return host
   else
     return nil
   end
 end, 0)
 
----@type fun(source: string, options?: DeployOptions): nil
-M.deploy_file = nio.create(function(source, options)
-  options = options or {}
+M.deploy_file = utils.nio_create(
+  ---@param source string
+  ---@param options? DeployOptions
+  function(source, options)
+    options = options or {}
 
-  local mapping = M.get_file_mapping(source)
+    local mapping = M.get_file_mapping(source)
 
-  if not mapping then
-    M.notify({ msg = "No mapping found for file: " .. source, level = vim.log.levels.ERROR, silent = options.silent })
-    return
-  end
-
-  local host = options.deploy_to_last_host and utils.get_last_host() or M.pick_host()
-
-  if not host then
-    M.notify({ msg = "Aborting deploy: No host selected", level = vim.log.levels.WARN, silent = options.silent })
-    return
-  end
-
-  local destination = mapping.remote .. source:sub(#vim.fn.expand(mapping.fs) + 1)
-
-  ---@type RewriteFunctionContext
-  local context = {
-    source = source,
-    destination = destination,
-    address = host.address,
-    extension = source:match("^.+%.(.+)$"),
-  }
-
-  if mapping.rewrite then
-    local rewrite_result = mapping.rewrite(context)
-
-    if rewrite_result == false then
-      M.notify({
-        msg = "Aborting deploy: Mapping rewrite function returned false",
-        level = vim.log.levels.WARN,
-        silent = options.silent,
-      })
+    if not mapping then
+      M.notify({ msg = "No mapping found for file: " .. source, level = vim.log.levels.ERROR, silent = options.silent })
       return
     end
-  end
 
-  if host.rewrite then
-    local rewrite_result = host.rewrite(context)
+    local host = options.deploy_to_last_host and utils.get_last_host() or M.pick_host()
 
-    if rewrite_result == false then
-      M.notify({
-        msg = "Aborting deploy: Host rewrite function returned false",
-        level = vim.log.levels.WARN,
-        silent = options.silent,
-      })
+    if not host then
+      M.notify({ msg = "Aborting deploy: No host selected", level = vim.log.levels.WARN, silent = options.silent })
       return
     end
-  end
 
-  local rsync_res = M.shell.fire_rsync(context)
+    local destination = mapping.remote .. source:sub(#vim.fn.expand(mapping.fs) + 1)
 
-  if rsync_res.code == 0 then
-    M.notify({ msg = "Deploy successful (" .. context.address .. ")" })
-    return
-  end
+    ---@type RewriteFunctionContext
+    local context = {
+      source = source,
+      destination = destination,
+      address = host.address,
+      extension = source:match("^.+%.(.+)$"),
+    }
 
-  -- handle known status codes for missing remote directory
-  if rsync_res.code == 3 or rsync_res.code == 12 then
-    M.notify({
-      msg = "Remote directory does not exist. Creating...",
-      level = vim.log.levels.WARN,
-    })
+    if mapping.rewrite then
+      local rewrite_result = mapping.rewrite(context)
 
-    local dir_res = M.shell.create_remote_dir(context)
-
-    if dir_res.code == 0 then
-      M.notify({ msg = "Remote directory created. Retrying deploy..." })
-      rsync_res = M.shell.fire_rsync(context)
-
-      if rsync_res.code == 0 then
-        M.notify({ msg = "Deploy successful (" .. context.address .. ")" })
-        return
-      else
+      if rewrite_result == false then
         M.notify({
-          msg = "Deploy failed after creating directory: " .. rsync_res.out,
-          level = vim.log.levels.ERROR,
+          msg = "Aborting deploy: Mapping rewrite function returned false",
+          level = vim.log.levels.WARN,
+          silent = options.silent,
         })
         return
       end
-    else
-      M.notify({
-        msg = "Failed to create remote directory: " .. dir_res.out,
-        level = vim.log.levels.ERROR,
-      })
+    end
 
+    if host.rewrite then
+      local rewrite_result = host.rewrite(context)
+
+      if rewrite_result == false then
+        M.notify({
+          msg = "Aborting deploy: Host rewrite function returned false",
+          level = vim.log.levels.WARN,
+          silent = options.silent,
+        })
+        return
+      end
+    end
+
+    local rsync_res = M.shell.fire_rsync(context)
+
+    if rsync_res.code == 0 then
+      M.notify({ msg = "Deploy successful (" .. context.address .. ")" })
       return
     end
-  end
 
-  M.notify({
-    msg = "Deploy failed! Unable to handle rsync exit code: "
-      .. rsync_res.code
-      .. "\n\nCommand used: \n"
-      .. rsync_res.command
-      .. "\n\nOutput:\n"
-      .. utils.rsync_err_code_to_human(rsync_res.code),
-    level = vim.log.levels.ERROR,
-  })
-end, 2)
+    -- handle known status codes for missing remote directory
+    if rsync_res.code == 3 or rsync_res.code == 12 then
+      M.notify({
+        msg = "Remote directory does not exist. Creating...",
+        level = vim.log.levels.WARN,
+      })
+
+      local dir_res = M.shell.create_remote_dir(context)
+
+      if dir_res.code == 0 then
+        M.notify({ msg = "Remote directory created. Retrying deploy..." })
+        rsync_res = M.shell.fire_rsync(context)
+
+        if rsync_res.code == 0 then
+          M.notify({ msg = "Deploy successful (" .. context.address .. ")" })
+          return
+        else
+          M.notify({
+            msg = "Deploy failed after creating directory: " .. rsync_res.out,
+            level = vim.log.levels.ERROR,
+          })
+          return
+        end
+      else
+        M.notify({
+          msg = "Failed to create remote directory: " .. dir_res.out,
+          level = vim.log.levels.ERROR,
+        })
+
+        return
+      end
+    end
+
+    M.notify({
+      msg = "Deploy failed! Unable to handle rsync exit code: "
+        .. rsync_res.code
+        .. "\n\nCommand used: \n"
+        .. rsync_res.command
+        .. "\n\nOutput:\n"
+        .. utils.rsync_err_code_to_human(rsync_res.code),
+      level = vim.log.levels.ERROR,
+    })
+  end,
+  2
+)
 
 M.is_deployable = function(source)
   return vim.fn.filereadable(source) == 1 and vim.fn.isdirectory(source) == 0
