@@ -70,4 +70,13 @@ M.rsync_err_code_to_human = function(code)
   return error_code_map[code] and error_code_map[code] or "Unknown error code: " .. tostring(code)
 end
 
+---Typed version of nio.create
+---@generic F: function
+---@param fn F
+---@param arg_count integer
+---@return F
+M.nio_create = function(fn, arg_count)
+  return nio.create(fn, arg_count)
+end
+
 return M
