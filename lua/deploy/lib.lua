@@ -75,18 +75,19 @@ M.pick_host = utils.nio_create(function()
 
   if host then
     if host.is_custom then
+      ---@diagnostic disable-next-line: missing-fields
       local custom_host_address = nio.ui.input({
         prompt = "Enter address:",
-        default = last_custom_address,
-        highlight = function() end,
+        default = host.address,
       })
 
-      if custom_host_address then
-        CUSTOM_HOST.address = custom_host_address
+      if custom_host_address and custom_host_address ~= "" then
+        host.address = custom_host_address
         utils.set_last_custom_address(custom_host_address)
-        utils.set_last_host(CUSTOM_HOST)
+        utils.set_last_host(host)
 
-        return CUSTOM_HOST
+        ---@type DeployHost
+        return host
       else
         return nil
       end
