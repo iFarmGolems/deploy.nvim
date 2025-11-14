@@ -1,27 +1,38 @@
-
 ---@meta DeployTypes
 
----@class RewriteFunctionContext
----@field local_path string Local filesystem path.
----@field remote_path string Remote path.
----@field file_extension string | nil The file extension of the local file, or nil if it has none.
+---@class DeployContext
+---@field source string Local source file path
+---@field destination string Remote destination file path
+---@field address string The host address to which we are deploying
 
----@alias RewriteFunction fun(context: RewriteFunctionContext): string | false | nil
+---@class DeployOptions
+---@field silent? boolean Whether to suppress output messages
+---@field deploy_to_last_host? boolean Whether to deploy to the last used host without prompting
+
+---@class RewriteFunctionContext : DeployContext
+---@field extension? string (Optional) The file extension of the source file
+
+---@alias RewriteFunction fun(context: RewriteFunctionContext): false|nil
+
+---@class ShellCommandResult
+---@field code number The exit code of the command.
+---@field out string The standard output or error output of the command.
+---@field command string The full command that was executed.
 
 ---@class DeployHost
----@field host string The host to which we can deploy.
+---@field address string The host address to which we can deploy.
 ---@field label string A label for the host.
 ---@field rewrite? RewriteFunction An optional function to rewrite the remote path before deployment.
 
 ---@class DeployMapping
----@field fs string Local filesystem path.
----@field remote string Remote path.
----@field rewrite? RewriteFunction An optional function to rewrite the remote path before deployment.
+---@field fs string Local filesystem folder.
+---@field remote string Remote folder.
+---@field rewrite? RewriteFunction An optional function to rewrite the server path before deployment.
 
 ---@class DeployConfig
----@field timeout? number The timeout for deployment (Seconds). Default is 3.
+---@field timeout number The timeout for deployment (Seconds). Default is 3.
 ---@field hosts DeployHost[] A table of hosts to which we can deploy.
----@field mapping DeployMapping[] A table of mappings from local filesystem paths to remote paths.
+---@field mappings DeployMapping[] A table of mappings from local filesystem paths to remote paths.
 
 ---@class Subcommand
 ---@field impl fun(args:string[], opts: table) The command implementation

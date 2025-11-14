@@ -1,28 +1,21 @@
 local lib = require("deploy.lib")
-local lib2 = require("deploy.lib2")
 
 ---@type table<string, Subcommand>
 local subcommand_tbl = {
   file = {
-    impl = function(args, opts)
-      lib.deploy_file(vim.fn.expand("%:p"))
-      -- Implementation (args is a list of strings)
+    impl = function()
+      lib.deploy_file(vim.fn.expand("%:p"), { silent = false })
     end,
-    -- This subcommand has no completions
+  },
+  -- alias for "file"
+  buffer = {
+    impl = function()
+      lib.deploy_file(vim.fn.expand("%:p"), { silent = false })
+    end,
   },
   toggle = {
     impl = function()
       lib.toggle_deploy_on_save()
-    end,
-  },
-  test = {
-    impl = function()
-      lib2.test()
-    end,
-  },
-  compare = {
-    impl = function()
-      lib.compare_with_remote_file()
     end,
   },
   -- install = {
@@ -87,12 +80,4 @@ vim.api.nvim_create_user_command("Deploy", my_cmd, {
     end
   end,
   bang = true, -- If you want to support ! modifiers
-})
-
-vim.api.nvim_create_autocmd("BufWritePost", {
-  callback = function(opts)
-    if vim.g.DEPLOY_ON_SAVE then
-      lib.auto_deploy_file(opts.match)
-    end
-  end,
 })
