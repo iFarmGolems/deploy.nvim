@@ -19,7 +19,7 @@ end
 
 ---@return string
 M.get_last_custom_address = function()
-  return vim.g.DEPLOY_LAST_CUSTOM_ADDRESS or ""
+  return vim.g.DEPLOY_LAST_CUSTOM_ADDRESS or nil
 end
 
 ---@param address string

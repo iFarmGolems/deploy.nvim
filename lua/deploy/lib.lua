@@ -63,7 +63,7 @@ M.pick_host = utils.nio_create(function()
 
   table.insert(hosts, 1, CUSTOM_HOST)
 
-  ---@type {label: string, address: string, is_custom: boolean}|nil
+  ---@type {label: string, address?: string, is_custom: boolean}|nil
   local host = nio.ui.select(hosts, {
     prompt = "Select host:",
     format_item = function(item)
