@@ -27,7 +27,7 @@ A powerful Neovim plugin for seamlessly deploying files to remote servers using 
 
 ```lua
 {
-  "patrik/deploy.nvim",
+  "iFarmGolems/deploy.nvim",
   dependencies = { "nvim-neotest/nvim-nio" },
   config = function()
     require("deploy").setup({
@@ -41,7 +41,7 @@ A powerful Neovim plugin for seamlessly deploying files to remote servers using 
 
 ```lua
 use {
-  "patrik/deploy.nvim",
+  "iFarmGolems/deploy.nvim",
   requires = { "nvim-neotest/nvim-nio" },
   config = function()
     require("deploy").setup({
@@ -55,7 +55,7 @@ use {
 
 ```vim
 Plug 'nvim-neotest/nvim-nio'
-Plug 'patrik/deploy.nvim'
+Plug 'iFarmGolems/deploy.nvim'
 
 " In your init.vim or init.lua:
 lua << EOF
@@ -220,18 +220,6 @@ vim.keymap.set("n", "<leader>dl", function()
   })
 end, { desc = "Deploy to last host" })
 ```
-
-### Autocommand for Auto-Deploy
-
-If you want to automatically enable deploy-on-save for specific filetypes:
-
-```lua
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "lua", "python", "javascript" },
-  callback = function()
-    require("deploy.lib").toggle_deploy_on_save(true)
-  end,
-})
 ```
 
 ## 🔍 How It Works
