@@ -4,12 +4,9 @@ A powerful Neovim plugin for seamlessly deploying files to remote servers using 
 
 ## ✨ Features
 
-- 📤 **Fast File Deployment** - Deploy files to remote servers with a single command
+- 📤 **Fast File Deployment** - Deploy files to remote servers on save and/or with a single command
 - 🎯 **Multiple Host Support** - Configure multiple deployment targets
-- 🔄 **Auto-Deploy on Save** - Automatically deploy files when you save them
-- 🗺️ **Path Mapping** - Map local directories to remote paths
-- 🔧 **Custom Rewrite Functions** - Transform file paths before deployment
-- 💾 **Smart History** - Remembers your last used host and custom addresses
+- 🔧 **Custom Rewrite Functions** - Transform file paths before deployment or abort deployment
 - 📁 **Auto Directory Creation** - Automatically creates remote directories if they don't exist
 - 🎨 **Custom Host Input** - Deploy to ad-hoc addresses on the fly
 - ⚡ **Async Operations** - Non-blocking deployments using `nvim-nio`
@@ -18,8 +15,8 @@ A powerful Neovim plugin for seamlessly deploying files to remote servers using 
 
 - Neovim >= 0.9.0
 - `rsync` installed on your system
-- SSH access to remote servers
-- [nvim-nio](https://github.com/nvim-neotest/nvim-nio) - Async library for Neovim
+- SSH access to remote servers without password (exchanged SSH keys)
+- [nvim-nio](https://github.com/nvim-neotest/nvim-nio) - Dependency for this plugin
 
 ## 📦 Installation
 
